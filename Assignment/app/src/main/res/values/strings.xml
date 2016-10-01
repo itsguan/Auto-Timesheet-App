@@ -4,4 +4,6 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="map_search_address">Address:</string>
     <string name="maps_activity_search">Search</string>
+    <string name="title_activity_locations">LocationsActivity</string>
+    <string name="locations_activity_active_locations">Active Locations:</string>
 </resources>
