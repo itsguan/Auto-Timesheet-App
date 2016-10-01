@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Assignment</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="map_search_address">Address:</string>
+    <string name="maps_activity_search">Search</string>
+</resources>
