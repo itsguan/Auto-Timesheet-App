@@ -50,6 +50,7 @@
             android:label="@string/title_activity_locations"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <service android:name=".GeofenceTransitionService" />
+        <service android:name=".LocationTracker" />
     </application>
 
 </manifest>

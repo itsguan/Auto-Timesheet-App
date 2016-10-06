@@ -35,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        startService(new Intent(this, LocationTracker.class));
     }
 
 }
