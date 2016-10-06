@@ -49,6 +49,7 @@
             android:name=".LocationsActivity"
             android:label="@string/title_activity_locations"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <service android:name=".GeofenceTransitionService" />
     </application>
 
 </manifest>

@@ -20,13 +20,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class GeofenceTrasitionService extends IntentService {
+public class GeofenceTransitionService extends IntentService {
 
-    private static final String TAG = GeofenceTrasitionService.class.getSimpleName();
+    private static final String TAG = GeofenceTransitionService.class.getSimpleName();
 
     public static final int GEOFENCE_NOTIFICATION_ID = 0;
 
-    public GeofenceTrasitionService() {
+    public GeofenceTransitionService() {
         super(TAG);
     }
 
@@ -51,6 +51,8 @@ public class GeofenceTrasitionService extends IntentService {
 
             // Send notification details as a String
             sendNotification( geofenceTransitionDetails );
+
+            Log.d(TAG, "triggered geofence");
         }
     }
 

@@ -186,7 +186,7 @@ public class MapsActivity extends FragmentActivity implements
 
     // Geofencing stuff:
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = MapsActivity.class.getSimpleName();
 
     private GoogleMap map;
     private GoogleApiClient googleApiClient;
@@ -499,7 +499,7 @@ public class MapsActivity extends FragmentActivity implements
         if ( geoFencePendingIntent != null )
             return geoFencePendingIntent;
 
-        Intent intent = new Intent( this, GeofenceTrasitionService.class);
+        Intent intent = new Intent( this, GeofenceTransitionService.class);
         return PendingIntent.getService(
                 this, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
     }
