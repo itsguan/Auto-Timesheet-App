@@ -31,10 +31,12 @@ public class MainActivity extends AppCompatActivity {
         setLocationsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+                Intent intent = new Intent(MainActivity.this, LocationsActivity.class);
                 startActivity(intent);
             }
         });
+
+        startService(new Intent(this, LocationTracker.class));
     }
 
 }

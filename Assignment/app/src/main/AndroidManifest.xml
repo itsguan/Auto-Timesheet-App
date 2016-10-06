@@ -34,9 +34,7 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps">
-
-        </activity>
+            android:label="@string/title_activity_maps"></activity>
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
@@ -47,6 +45,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".LocationsActivity"
+            android:label="@string/title_activity_locations"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <service android:name=".GeofenceTransitionService" />
+        <service android:name=".LocationTracker" />
     </application>
 
 </manifest>
