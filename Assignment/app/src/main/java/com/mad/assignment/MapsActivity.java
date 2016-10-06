@@ -141,6 +141,10 @@ public class MapsActivity extends FragmentActivity implements
                 editor.commit();
 
                 Log.v(TAG, sharedPreferences.getString("myList", "Not found"));
+
+                Toast.makeText(getApplicationContext(), location + " is added.", Toast.LENGTH_LONG).show();
+
+                finish();
             }
         });
     }
