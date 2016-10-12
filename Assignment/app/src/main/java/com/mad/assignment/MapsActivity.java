@@ -46,6 +46,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -86,30 +87,15 @@ public class MapsActivity extends FragmentActivity implements
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String location = searchBar.getText().toString();
-                List<Address> addressList = null;
+                String searchAddress = searchBar.getText().toString();
+                LatLng latLng = findLatLngFromAddress(searchAddress);
 
-                if (location != null || !location.equals("")) {
-                    Geocoder geocoder = new Geocoder(getApplicationContext());
-
-                    try {
-                        addressList = geocoder.getFromLocationName(location, 1);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Toast.makeText(getApplicationContext(),
-                                "Search timed out due to Android servers",
-                                Toast.LENGTH_LONG).show();
-                    }
-
-                    if (addressList != null) {
-                        Address address = addressList.get(0);
-                        LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-                        mMap.addMarker(new MarkerOptions().position(latLng).title("Address"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                    }
-                }
+                mMap.addMarker(new MarkerOptions().position(latLng).title("Address"));
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             }
         });
+
+        final ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
 
         Button saveBtn = (Button) findViewById(R.id.maps_activity_save_btn);
 
@@ -119,25 +105,40 @@ public class MapsActivity extends FragmentActivity implements
                 String location = searchBar.getText().toString();
                 SharedPreferences sharedPreferences = getSharedPreferences(LocationsActivity.LOCATION_PREF, Context.MODE_PRIVATE);
 
+                /*
                 String addressesAsString = sharedPreferences.getString("myList", "Not found");
                 String[] addresses = addressesAsString.split(",");
 
                 List<String> listOfAddresses = new ArrayList<String>();
 
-                for(int i=0; i < addresses.length; i++){
+                for (int i = 0; i < addresses.length; i++) {
                     listOfAddresses.add(addresses[i]);
                 }
 
                 listOfAddresses.add(location);
 
                 StringBuilder listBuilder = new StringBuilder();
-                for(String s : listOfAddresses){
+                for (String s : listOfAddresses) {
                     listBuilder.append(s);
                     listBuilder.append(",");
                 }
 
                 SharedPreferences.Editor editor = getSharedPreferences(LocationsActivity.LOCATION_PREF, MODE_PRIVATE).edit();
                 editor.putString("myList", listBuilder.toString());
+                editor.commit();
+                */
+
+                // GSON Method:
+
+                WorkSite workSite = new WorkSite("Test", 0, 0);
+
+                workSites.add(workSite);
+
+                Gson gson = new Gson();
+                String jsonWorkSites = gson.toJson(workSites);
+
+                SharedPreferences.Editor editor = getSharedPreferences(LocationsActivity.LOCATION_PREF, MODE_PRIVATE).edit();
+                editor.putString("myList", jsonWorkSites);
                 editor.commit();
 
                 Log.v(TAG, sharedPreferences.getString("myList", "Not found"));
@@ -147,6 +148,34 @@ public class MapsActivity extends FragmentActivity implements
                 finish();
             }
         });
+    }
+
+    /**
+     * Returns a LatLng when given an address.
+     */
+    private LatLng findLatLngFromAddress(String searchAddress) {
+
+        List<Address> addressList = null;
+
+        if (searchAddress != null || !searchAddress.equals("")) {
+
+            Geocoder geocoder = new Geocoder(getApplicationContext());
+
+            try {
+                addressList = geocoder.getFromLocationName(searchAddress, 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(),
+                        "Search timed out due to Android servers",
+                        Toast.LENGTH_LONG).show();
+            }
+
+            if (addressList != null) {
+                Address address = addressList.get(0);
+                return new LatLng(address.getLatitude(), address.getLongitude());
+            }
+        }
+        return null;
     }
 
 
@@ -200,8 +229,8 @@ public class MapsActivity extends FragmentActivity implements
 
     // Create a Intent send by the notification
     public static Intent makeNotificationIntent(Context context, String msg) {
-        Intent intent = new Intent( context, MapsActivity.class );
-        intent.putExtra( NOTIFICATION_MSG, msg );
+        Intent intent = new Intent(context, MapsActivity.class);
+        intent.putExtra(NOTIFICATION_MSG, msg);
         return intent;
     }
 
@@ -222,11 +251,11 @@ public class MapsActivity extends FragmentActivity implements
     // Create GoogleApiClient instance
     private void createGoogleApi() {
         Log.d(TAG, "createGoogleApi()");
-        if ( googleApiClient == null ) {
-            googleApiClient = new GoogleApiClient.Builder( this )
-                    .addConnectionCallbacks( this )
-                    .addOnConnectionFailedListener( this )
-                    .addApi( LocationServices.API )
+        if (googleApiClient == null) {
+            googleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
                     .build();
         }
     }
@@ -276,7 +305,7 @@ public class MapsActivity extends FragmentActivity implements
         Log.d(TAG, "checkPermission()");
         // Ask for permission if it wasn't granted yet
         return (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED );
+                == PackageManager.PERMISSION_GRANTED);
     }
 
     // Asks for permission
@@ -284,7 +313,7 @@ public class MapsActivity extends FragmentActivity implements
         Log.d(TAG, "askPermission()");
         ActivityCompat.requestPermissions(
                 this,
-                new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 REQ_PERMISSION
         );
     }
@@ -294,10 +323,10 @@ public class MapsActivity extends FragmentActivity implements
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult()");
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch ( requestCode ) {
+        switch (requestCode) {
             case REQ_PERMISSION: {
-                if ( grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED ){
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission granted
                     getLastKnownLocation();
 
@@ -333,37 +362,37 @@ public class MapsActivity extends FragmentActivity implements
 
     @Override
     public void onMapClick(LatLng latLng) {
-        Log.d(TAG, "onMapClick("+latLng +")");
+        Log.d(TAG, "onMapClick(" + latLng + ")");
         markerForGeofence(latLng);
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        Log.d(TAG, "onMarkerClickListener: " + marker.getPosition() );
+        Log.d(TAG, "onMarkerClickListener: " + marker.getPosition());
         return false;
     }
 
     private LocationRequest locationRequest;
     // Defined in mili seconds.
     // This number in extremely low, and should be used only for debug
-    private final int UPDATE_INTERVAL =  1000;
+    private final int UPDATE_INTERVAL = 1000;
     private final int FASTEST_INTERVAL = 900;
 
     // Start location Updates
-    private void startLocationUpdates(){
+    private void startLocationUpdates() {
         Log.i(TAG, "startLocationUpdates()");
         locationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(UPDATE_INTERVAL)
                 .setFastestInterval(FASTEST_INTERVAL);
 
-        if ( checkPermission() )
+        if (checkPermission())
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d(TAG, "onLocationChanged ["+location+"]");
+        Log.d(TAG, "onLocationChanged [" + location + "]");
         lastLocation = location;
         writeActualLocation(location);
     }
@@ -391,9 +420,9 @@ public class MapsActivity extends FragmentActivity implements
     // Get last known location
     private void getLastKnownLocation() {
         Log.d(TAG, "getLastKnownLocation()");
-        if ( checkPermission() ) {
+        if (checkPermission()) {
             lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-            if ( lastLocation != null ) {
+            if (lastLocation != null) {
                 Log.i(TAG, "LasKnown location. " +
                         "Long: " + lastLocation.getLongitude() +
                         " | Lat: " + lastLocation.getLatitude());
@@ -403,13 +432,12 @@ public class MapsActivity extends FragmentActivity implements
                 Log.w(TAG, "No location retrieved yet");
                 startLocationUpdates();
             }
-        }
-        else askPermission();
+        } else askPermission();
     }
 
     private void writeActualLocation(Location location) {
-        textLat.setText( "Lat: " + location.getLatitude() );
-        textLong.setText( "Long: " + location.getLongitude() );
+        textLat.setText("Lat: " + location.getLatitude());
+        textLong.setText("Long: " + location.getLongitude());
 
         markerLocation(new LatLng(location.getLatitude(), location.getLongitude()));
     }
@@ -419,14 +447,15 @@ public class MapsActivity extends FragmentActivity implements
     }
 
     private Marker locationMarker;
+
     private void markerLocation(LatLng latLng) {
-        Log.i(TAG, "markerLocation("+latLng+")");
+        Log.i(TAG, "markerLocation(" + latLng + ")");
         String title = latLng.latitude + ", " + latLng.longitude;
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
                 .title(title);
-        if ( mMap!=null ) {
-            if ( locationMarker != null )
+        if (mMap != null) {
+            if (locationMarker != null)
                 locationMarker.remove();
             locationMarker = mMap.addMarker(markerOptions);
             float zoom = 14f;
@@ -437,15 +466,16 @@ public class MapsActivity extends FragmentActivity implements
 
 
     private Marker geoFenceMarker;
+
     private void markerForGeofence(LatLng latLng) {
-        Log.i(TAG, "markerForGeofence("+latLng+")");
+        Log.i(TAG, "markerForGeofence(" + latLng + ")");
         String title = latLng.latitude + ", " + latLng.longitude;
         // Define marker options
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
                 .title(title);
-        if ( mMap!=null ) {
+        if (mMap != null) {
             // Remove last geoFenceMarker
             if (geoFenceMarker != null)
                 geoFenceMarker.remove();
@@ -458,10 +488,10 @@ public class MapsActivity extends FragmentActivity implements
     // Start Geofence creation process
     private void startGeofence() {
         Log.i(TAG, "startGeofence()");
-        if( geoFenceMarker != null ) {
-            Geofence geofence = createGeofence( geoFenceMarker.getPosition(), GEOFENCE_RADIUS );
-            GeofencingRequest geofenceRequest = createGeofenceRequest( geofence );
-            addGeofence( geofenceRequest );
+        if (geoFenceMarker != null) {
+            Geofence geofence = createGeofence(geoFenceMarker.getPosition(), GEOFENCE_RADIUS);
+            GeofencingRequest geofenceRequest = createGeofenceRequest(geofence);
+            addGeofence(geofenceRequest);
         } else {
             Log.e(TAG, "Geofence marker is null");
         }
@@ -472,36 +502,37 @@ public class MapsActivity extends FragmentActivity implements
     private static final float GEOFENCE_RADIUS = 500.0f; // in meters
 
     // Create a Geofence
-    private Geofence createGeofence( LatLng latLng, float radius ) {
+    private Geofence createGeofence(LatLng latLng, float radius) {
         Log.d(TAG, "createGeofence");
         return new Geofence.Builder()
                 .setRequestId(GEOFENCE_REQ_ID)
-                .setCircularRegion( latLng.latitude, latLng.longitude, radius)
-                .setExpirationDuration( GEO_DURATION )
-                .setTransitionTypes( Geofence.GEOFENCE_TRANSITION_ENTER
-                        | Geofence.GEOFENCE_TRANSITION_EXIT )
+                .setCircularRegion(latLng.latitude, latLng.longitude, radius)
+                .setExpirationDuration(GEO_DURATION)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER
+                        | Geofence.GEOFENCE_TRANSITION_EXIT)
                 .build();
     }
 
     // Create a Geofence Request
-    private GeofencingRequest createGeofenceRequest( Geofence geofence ) {
+    private GeofencingRequest createGeofenceRequest(Geofence geofence) {
         Log.d(TAG, "createGeofenceRequest");
         return new GeofencingRequest.Builder()
-                .setInitialTrigger( GeofencingRequest.INITIAL_TRIGGER_ENTER )
-                .addGeofence( geofence )
+                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+                .addGeofence(geofence)
                 .build();
     }
 
     private PendingIntent geoFencePendingIntent;
     private final int GEOFENCE_REQ_CODE = 0;
+
     private PendingIntent createGeofencePendingIntent() {
         Log.d(TAG, "createGeofencePendingIntent");
-        if ( geoFencePendingIntent != null )
+        if (geoFencePendingIntent != null)
             return geoFencePendingIntent;
 
-        Intent intent = new Intent( this, GeofenceTransitionService.class);
+        Intent intent = new Intent(this, GeofenceTransitionService.class);
         return PendingIntent.getService(
-                this, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
+                this, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     // Add the created GeofenceRequest to the device's monitoring list
@@ -518,7 +549,7 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onResult(@NonNull Status status) {
         Log.i(TAG, "onResult: " + status);
-        if ( status.isSuccess() ) {
+        if (status.isSuccess()) {
             saveGeofence();
             drawGeofence();
         } else {
@@ -528,18 +559,19 @@ public class MapsActivity extends FragmentActivity implements
 
     // Draw Geofence circle on GoogleMap
     private Circle geoFenceLimits;
+
     private void drawGeofence() {
         Log.d(TAG, "drawGeofence()");
 
-        if ( geoFenceLimits != null )
+        if (geoFenceLimits != null)
             geoFenceLimits.remove();
 
         CircleOptions circleOptions = new CircleOptions()
-                .center( geoFenceMarker.getPosition())
-                .strokeColor(Color.argb(50, 70,70,70))
-                .fillColor( Color.argb(100, 150,150,150) )
-                .radius( GEOFENCE_RADIUS );
-        geoFenceLimits = mMap.addCircle( circleOptions );
+                .center(geoFenceMarker.getPosition())
+                .strokeColor(Color.argb(50, 70, 70, 70))
+                .fillColor(Color.argb(100, 150, 150, 150))
+                .radius(GEOFENCE_RADIUS);
+        geoFenceLimits = mMap.addCircle(circleOptions);
     }
 
     private final String KEY_GEOFENCE_LAT = "GEOFENCE LATITUDE";
@@ -548,23 +580,23 @@ public class MapsActivity extends FragmentActivity implements
     // Saving GeoFence marker with prefs mng
     private void saveGeofence() {
         Log.d(TAG, "saveGeofence()");
-        SharedPreferences sharedPref = getPreferences( Context.MODE_PRIVATE );
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
 
-        editor.putLong( KEY_GEOFENCE_LAT, Double.doubleToRawLongBits( geoFenceMarker.getPosition().latitude ));
-        editor.putLong( KEY_GEOFENCE_LON, Double.doubleToRawLongBits( geoFenceMarker.getPosition().longitude ));
+        editor.putLong(KEY_GEOFENCE_LAT, Double.doubleToRawLongBits(geoFenceMarker.getPosition().latitude));
+        editor.putLong(KEY_GEOFENCE_LON, Double.doubleToRawLongBits(geoFenceMarker.getPosition().longitude));
         editor.apply();
     }
 
     // Recovering last Geofence marker
     private void recoverGeofenceMarker() {
         Log.d(TAG, "recoverGeofenceMarker");
-        SharedPreferences sharedPref = getPreferences( Context.MODE_PRIVATE );
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
 
-        if ( sharedPref.contains( KEY_GEOFENCE_LAT ) && sharedPref.contains( KEY_GEOFENCE_LON )) {
-            double lat = Double.longBitsToDouble( sharedPref.getLong( KEY_GEOFENCE_LAT, -1 ));
-            double lon = Double.longBitsToDouble( sharedPref.getLong( KEY_GEOFENCE_LON, -1 ));
-            LatLng latLng = new LatLng( lat, lon );
+        if (sharedPref.contains(KEY_GEOFENCE_LAT) && sharedPref.contains(KEY_GEOFENCE_LON)) {
+            double lat = Double.longBitsToDouble(sharedPref.getLong(KEY_GEOFENCE_LAT, -1));
+            double lon = Double.longBitsToDouble(sharedPref.getLong(KEY_GEOFENCE_LON, -1));
+            LatLng latLng = new LatLng(lat, lon);
             markerForGeofence(latLng);
             drawGeofence();
         }
@@ -579,7 +611,7 @@ public class MapsActivity extends FragmentActivity implements
         ).setResultCallback(new ResultCallback<Status>() {
             @Override
             public void onResult(@NonNull Status status) {
-                if ( status.isSuccess() ) {
+                if (status.isSuccess()) {
                     // remove drawing
                     removeGeofenceDraw();
                 }
@@ -589,9 +621,9 @@ public class MapsActivity extends FragmentActivity implements
 
     private void removeGeofenceDraw() {
         Log.d(TAG, "removeGeofenceDraw()");
-        if ( geoFenceMarker != null)
+        if (geoFenceMarker != null)
             geoFenceMarker.remove();
-        if ( geoFenceLimits != null )
+        if (geoFenceLimits != null)
             geoFenceLimits.remove();
     }
 }

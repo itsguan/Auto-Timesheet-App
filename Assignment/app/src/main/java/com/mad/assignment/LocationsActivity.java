@@ -12,6 +12,13 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.lang.reflect.Type;
+
 public class LocationsActivity extends AppCompatActivity {
 
     public static final String LOCATION_PREF = "locationPref";
@@ -37,7 +44,7 @@ public class LocationsActivity extends AppCompatActivity {
 
         mListView = (ListView) findViewById(R.id.locations_activity_list_view);
 
-        String[] addresses = getAddressesFromPrefs();
+        ArrayList<String> addresses = getAddressesFromPrefs();
 
         mAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, addresses);
@@ -49,7 +56,7 @@ public class LocationsActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        String[] addresses = getAddressesFromPrefs();
+        ArrayList<String> addresses = getAddressesFromPrefs();
 
         mAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, addresses);
@@ -58,10 +65,28 @@ public class LocationsActivity extends AppCompatActivity {
         Log.d("tag", "resumed");
     }
 
-    private String[] getAddressesFromPrefs() {
+    private ArrayList<String> getAddressesFromPrefs() {
         SharedPreferences sharedPreferences = getSharedPreferences(LOCATION_PREF, Context.MODE_PRIVATE);
 
+        /*
         String addressesAsString = sharedPreferences.getString("myList", "Not found");
         return addressesAsString.split(",");
+        */
+        String jsonWorkSites = sharedPreferences.getString("myList", "");
+        Log.d("JSONTAG", "jsonWorkSites = " + jsonWorkSites);
+
+        Gson gson = new Gson();
+        Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
+        ArrayList<String> workSiteAddresses = new ArrayList<String>();
+
+        if (jsonWorkSites != "") {
+            ArrayList<WorkSite> workSites = gson.fromJson(jsonWorkSites, type);
+
+            for (WorkSite workSite : workSites) {
+                workSiteAddresses.add(workSite.getAddress());
+            }
+        }
+
+        return workSiteAddresses;
     }
 }
