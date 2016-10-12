@@ -115,7 +115,9 @@ public class MapsActivity extends FragmentActivity implements
                     workSites = prevWorkSites;
                 }
 
-                WorkSite workSite = new WorkSite(location, 0, 0);
+                LatLng latLng = findLatLngFromAddress(location);
+
+                WorkSite workSite = new WorkSite(location, latLng);
 
                 workSites.add(workSite);
 

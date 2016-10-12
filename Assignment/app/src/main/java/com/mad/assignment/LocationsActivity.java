@@ -79,7 +79,7 @@ public class LocationsActivity extends AppCompatActivity {
         Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
         ArrayList<String> workSiteAddresses = new ArrayList<String>();
 
-        if (jsonWorkSites != "") {
+        if (jsonWorkSites != null && jsonWorkSites != "") {
             ArrayList<WorkSite> workSites = gson.fromJson(jsonWorkSites, type);
 
             for (WorkSite workSite : workSites) {

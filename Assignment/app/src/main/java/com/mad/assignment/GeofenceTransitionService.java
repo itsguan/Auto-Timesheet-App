@@ -8,13 +8,16 @@ import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.location.Location;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingEvent;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +50,8 @@ public class GeofenceTransitionService extends IntentService {
             // Get the geofence that were triggered
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
+            showToastAtGeofence(geofencingEvent);
+
             String geofenceTransitionDetails = getGeofenceTrasitionDetails(geoFenceTransition, triggeringGeofences );
 
             // Send notification details as a String
@@ -54,6 +59,14 @@ public class GeofenceTransitionService extends IntentService {
 
             Log.d(TAG, "triggered geofence");
         }
+    }
+
+    private void showToastAtGeofence(GeofencingEvent geofencingEvent) {
+        Location locationOfGeofence = geofencingEvent.getTriggeringLocation();
+        LatLng latLng = new LatLng(locationOfGeofence.getLatitude(), locationOfGeofence.getLongitude());
+        String latLngMsg = "Lat: " + latLng.latitude + "Lng: " + latLng.longitude;
+        Toast.makeText(this, latLngMsg, Toast.LENGTH_LONG).show();
+        Log.d(TAG, latLngMsg);
     }
 
 
