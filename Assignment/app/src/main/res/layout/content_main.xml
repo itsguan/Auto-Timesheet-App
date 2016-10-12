@@ -18,6 +18,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:text="Welcome User"/>
 
     <Button
@@ -40,5 +41,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Compile Into Table"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="@string/main_activity_currently_working_at"/>
+
+    <TextView
+        android:id="@+id/main_activity_worksite_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/main_activity_not_at_worksite"/>
+
+    <TextView
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/main_activity_hours_worked"/>
+
+    <TextView
+        android:id="@+id/main_activity_hours_worked_timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/hours_worked_placeholder"/>
 
 </LinearLayout>
