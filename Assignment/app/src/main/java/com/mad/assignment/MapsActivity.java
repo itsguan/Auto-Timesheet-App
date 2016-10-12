@@ -47,8 +47,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,10 +65,12 @@ public class MapsActivity extends FragmentActivity implements
 
     private GoogleMap mMap;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -75,10 +79,6 @@ public class MapsActivity extends FragmentActivity implements
         textLat = (TextView) findViewById(R.id.lat);
         textLong = (TextView) findViewById(R.id.lon);
 
-        // initialize GoogleMaps
-        //initGMaps();
-
-        // create GoogleApiClient
         createGoogleApi();
 
         final EditText searchBar = (EditText) findViewById(R.id.maps_activity_search_et);
@@ -95,8 +95,6 @@ public class MapsActivity extends FragmentActivity implements
             }
         });
 
-        final ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
-
         Button saveBtn = (Button) findViewById(R.id.maps_activity_save_btn);
 
         saveBtn.setOnClickListener(new View.OnClickListener() {
@@ -104,37 +102,24 @@ public class MapsActivity extends FragmentActivity implements
             public void onClick(View v) {
                 String location = searchBar.getText().toString();
                 SharedPreferences sharedPreferences = getSharedPreferences(LocationsActivity.LOCATION_PREF, Context.MODE_PRIVATE);
+                ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
+                Gson gson = new Gson();
 
-                /*
-                String addressesAsString = sharedPreferences.getString("myList", "Not found");
-                String[] addresses = addressesAsString.split(",");
+                String jsonSavedWorkSites = sharedPreferences.getString("myList", "");
+                Log.d("JSONTAG2", "jsonSavedWorkSites = " + jsonSavedWorkSites);
 
-                List<String> listOfAddresses = new ArrayList<String>();
+                Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
 
-                for (int i = 0; i < addresses.length; i++) {
-                    listOfAddresses.add(addresses[i]);
+                if (jsonSavedWorkSites != "") {
+                    ArrayList<WorkSite> prevWorkSites = gson.fromJson(jsonSavedWorkSites, type);
+                    workSites = prevWorkSites;
                 }
 
-                listOfAddresses.add(location);
-
-                StringBuilder listBuilder = new StringBuilder();
-                for (String s : listOfAddresses) {
-                    listBuilder.append(s);
-                    listBuilder.append(",");
-                }
-
-                SharedPreferences.Editor editor = getSharedPreferences(LocationsActivity.LOCATION_PREF, MODE_PRIVATE).edit();
-                editor.putString("myList", listBuilder.toString());
-                editor.commit();
-                */
-
-                // GSON Method:
-
-                WorkSite workSite = new WorkSite("Test", 0, 0);
+                WorkSite workSite = new WorkSite(location, 0, 0);
 
                 workSites.add(workSite);
 
-                Gson gson = new Gson();
+
                 String jsonWorkSites = gson.toJson(workSites);
 
                 SharedPreferences.Editor editor = getSharedPreferences(LocationsActivity.LOCATION_PREF, MODE_PRIVATE).edit();
