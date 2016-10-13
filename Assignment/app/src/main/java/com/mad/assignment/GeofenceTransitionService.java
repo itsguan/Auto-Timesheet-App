@@ -50,6 +50,10 @@ public class GeofenceTransitionService extends IntentService {
             // Get the geofence that were triggered
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
+            for (Geofence geofence : triggeringGeofences) {
+                Log.d(TAG, "GEOID: " + geofence.getRequestId());
+            }
+
             showToastAtGeofence(geofencingEvent);
 
             String geofenceTransitionDetails = getGeofenceTrasitionDetails(geoFenceTransition, triggeringGeofences );
