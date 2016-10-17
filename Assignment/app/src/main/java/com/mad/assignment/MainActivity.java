@@ -36,6 +36,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button viewCurrentPeriodBtn =
+                (Button) findViewById(R.id.main_activity_view_current_period_btn);
+        viewCurrentPeriodBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, CurrentPeriodActivity.class);
+                startActivity(intent);
+            }
+        });
+
         startService(new Intent(this, LocationTracker.class));
     }
 
