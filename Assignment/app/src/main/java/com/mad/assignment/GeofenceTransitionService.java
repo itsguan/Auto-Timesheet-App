@@ -54,8 +54,6 @@ public class GeofenceTransitionService extends IntentService {
                 Log.d(TAG, "GEOID: " + geofence.getRequestId());
             }
 
-            showToastAtGeofence(geofencingEvent);
-
             String geofenceTransitionDetails = getGeofenceTrasitionDetails(geoFenceTransition, triggeringGeofences );
 
             // Send notification details as a String
@@ -69,7 +67,7 @@ public class GeofenceTransitionService extends IntentService {
         Location locationOfGeofence = geofencingEvent.getTriggeringLocation();
         LatLng latLng = new LatLng(locationOfGeofence.getLatitude(), locationOfGeofence.getLongitude());
         String latLngMsg = "Lat: " + latLng.latitude + "Lng: " + latLng.longitude;
-        Toast.makeText(this, latLngMsg, Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), latLngMsg, Toast.LENGTH_LONG).show();
         Log.d(TAG, latLngMsg);
     }
 
