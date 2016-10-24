@@ -5,66 +5,66 @@
     android:id="@+id/content_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.mad.assignment.MainActivity"
-    tools:showIn="@layout/activity_main"
-    android:orientation="vertical"
-    android:gravity="center_horizontal">
+    tools:showIn="@layout/activity_main">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:text="Welcome User"/>
+        android:text="Welcome! Get Started:"
+        android:textSize="@dimen/main_activity_text_size" />
 
     <Button
         android:id="@+id/main_activity_set_locations_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Set Locations"/>
+        android:text="Set Locations" />
 
     <Button
         android:id="@+id/main_activity_view_current_period_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="View Current Period"/>
+        android:text="View Current Period" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="View Previous Periods"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Compile Into Table"/>
+        android:text="View Previous Periods" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:text="@string/main_activity_currently_working_at"/>
+        android:layout_marginTop="10dp"
+        android:text="@string/main_activity_currently_working_at"
+        android:textSize="@dimen/main_activity_text_size" />
 
     <TextView
         android:id="@+id/main_activity_worksite_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/main_activity_not_at_worksite"/>
+        android:text="@string/main_activity_not_at_worksite"
+        android:textSize="@dimen/main_activity_text_size" />
 
     <TextView
-        android:layout_marginTop="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/main_activity_hours_worked"/>
+        android:layout_marginTop="10dp"
+        android:text="@string/main_activity_hours_worked"
+        android:textSize="@dimen/main_activity_text_size" />
 
     <TextView
         android:id="@+id/main_activity_hours_worked_timer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hours_worked_placeholder"/>
+        android:text="@string/hours_worked_placeholder"
+        android:textSize="@dimen/main_activity_text_size" />
 
 </LinearLayout>

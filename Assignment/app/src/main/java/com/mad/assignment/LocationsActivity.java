@@ -8,6 +8,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -22,6 +24,7 @@ import java.lang.reflect.Type;
 public class LocationsActivity extends AppCompatActivity {
 
     public static final String LOCATION_PREF = "locationPref";
+    public static final String JSON_TAG = "myList";
 
     ListView mListView;
     private ArrayAdapter<String> mAdapter;
@@ -53,16 +56,36 @@ public class LocationsActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.locations_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_clear_all:
+                clearAllLocations();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        refreshAdapter();
+        Log.d("tag", "resumed");
+    }
 
+    private void refreshAdapter() {
         ArrayList<String> addresses = getAddressesFromPrefs();
-
         mAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, addresses);
 
         mListView.setAdapter(mAdapter);
-        Log.d("tag", "resumed");
     }
 
     private ArrayList<String> getAddressesFromPrefs() {
@@ -72,7 +95,7 @@ public class LocationsActivity extends AppCompatActivity {
         String addressesAsString = sharedPreferences.getString("myList", "Not found");
         return addressesAsString.split(",");
         */
-        String jsonWorkSites = sharedPreferences.getString("myList", "");
+        String jsonWorkSites = sharedPreferences.getString(JSON_TAG, "");
         Log.d("JSONTAG", "jsonWorkSites = " + jsonWorkSites);
 
         Gson gson = new Gson();
@@ -88,5 +111,20 @@ public class LocationsActivity extends AppCompatActivity {
         }
 
         return workSiteAddresses;
+    }
+
+    /**
+     * Clears the Json list of work sites stored in the SharedPrefs
+     */
+    private void clearAllLocations() {
+        Gson gson = new Gson();
+        ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
+        String jsonWorkSites = gson.toJson(workSites);
+        SharedPreferences.Editor editor =
+                getSharedPreferences(LocationsActivity.LOCATION_PREF, MODE_PRIVATE).edit();
+
+        editor.putString(JSON_TAG, jsonWorkSites);
+        editor.commit();
+        refreshAdapter();
     }
 }

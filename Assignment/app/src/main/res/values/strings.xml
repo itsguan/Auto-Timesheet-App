@@ -1,11 +1,9 @@
 <resources>
-    <string name="app_name">Assignment</string>
+    <string name="app_name">Work Logger</string>
     <string name="title_activity_maps">Map</string>
-    <string name="title_activity_main">MainActivity</string>
     <string name="map_search_address">Address:</string>
     <string name="maps_activity_search">Search</string>
-    <string name="title_activity_locations">LocationsActivity</string>
-    <string name="locations_activity_active_locations">Active Locations:</string>
+    <string name="locations_activity_label">Active Work Locations:</string>
     <string name="maps_activity_save">Save</string>
     <string name="main_activity_currently_working_at">Currently working at:</string>
     <string name="main_activity_not_at_worksite">Not at worksite</string>

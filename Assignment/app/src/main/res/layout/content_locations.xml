@@ -15,11 +15,6 @@
     android:orientation="vertical"
     android:gravity="center_horizontal">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/locations_activity_active_locations"/>
-
     <ListView
         android:id="@+id/locations_activity_list_view"
         android:layout_width="match_parent"
