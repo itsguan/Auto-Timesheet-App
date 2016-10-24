@@ -26,7 +26,7 @@ public class LocationsActivity extends AppCompatActivity {
     public static final String LOCATION_PREF = "locationPref";
     public static final String JSON_TAG = "myList";
 
-    ListView mListView;
+    private ListView mListView;
     private ArrayAdapter<String> mAdapter;
 
     @Override
@@ -47,12 +47,7 @@ public class LocationsActivity extends AppCompatActivity {
 
         mListView = (ListView) findViewById(R.id.locations_activity_list_view);
 
-        ArrayList<String> addresses = getAddressesFromPrefs();
-
-        mAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, android.R.id.text1, addresses);
-
-        mListView.setAdapter(mAdapter);
+        refreshAdapter();
     }
 
     @Override
@@ -80,6 +75,9 @@ public class LocationsActivity extends AppCompatActivity {
         Log.d("tag", "resumed");
     }
 
+    /**
+     * Refreshes the listView's adapter by retrieving the Json string from sharedPrefs.
+     */
     private void refreshAdapter() {
         ArrayList<String> addresses = getAddressesFromPrefs();
         mAdapter = new ArrayAdapter<String>(this,
@@ -88,20 +86,19 @@ public class LocationsActivity extends AppCompatActivity {
         mListView.setAdapter(mAdapter);
     }
 
+    /**
+     * Retrieves the active work sites stored in the sharedPrefs as a Json string.
+     */
     private ArrayList<String> getAddressesFromPrefs() {
-        SharedPreferences sharedPreferences = getSharedPreferences(LOCATION_PREF, Context.MODE_PRIVATE);
-
-        /*
-        String addressesAsString = sharedPreferences.getString("myList", "Not found");
-        return addressesAsString.split(",");
-        */
+        SharedPreferences sharedPreferences =
+                getSharedPreferences(LOCATION_PREF, Context.MODE_PRIVATE);
         String jsonWorkSites = sharedPreferences.getString(JSON_TAG, "");
         Log.d("JSONTAG", "jsonWorkSites = " + jsonWorkSites);
-
         Gson gson = new Gson();
-        Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
+        Type type = new TypeToken<ArrayList<WorkSite>>() {}.getType();
         ArrayList<String> workSiteAddresses = new ArrayList<String>();
 
+        // Only convert back to a list if the Json string is not empty.
         if (jsonWorkSites != null && jsonWorkSites != "") {
             ArrayList<WorkSite> workSites = gson.fromJson(jsonWorkSites, type);
 
