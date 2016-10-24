@@ -65,7 +65,6 @@ public class MapsActivity extends FragmentActivity implements
 
     private GoogleMap mMap;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,51 +100,56 @@ public class MapsActivity extends FragmentActivity implements
             @Override
             public void onClick(View v) {
                 String location = searchBar.getText().toString();
-                SharedPreferences sharedPreferences = getSharedPreferences(LocationsActivity.LOCATION_PREF, Context.MODE_PRIVATE);
-                ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
-                Gson gson = new Gson();
-
-                String jsonSavedWorkSites = sharedPreferences.getString("myList", "");
-                Log.d("JSONTAG2", "jsonSavedWorkSites = " + jsonSavedWorkSites);
-
-                Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
-
-                if (jsonSavedWorkSites != "") {
-                    ArrayList<WorkSite> prevWorkSites = gson.fromJson(jsonSavedWorkSites, type);
-                    workSites = prevWorkSites;
-                }
-
-                LatLng latLng = findLatLngFromAddress(location);
-
-                WorkSite workSite = new WorkSite(location, latLng);
-
-                workSites.add(workSite);
-
-
-                String jsonWorkSites = gson.toJson(workSites);
-
-                SharedPreferences.Editor editor = getSharedPreferences(LocationsActivity.LOCATION_PREF, MODE_PRIVATE).edit();
-                editor.putString("myList", jsonWorkSites);
-                editor.commit();
-
-                Log.v(TAG, sharedPreferences.getString("myList", "Not found"));
-
-                Toast.makeText(getApplicationContext(), location + " is added.", Toast.LENGTH_LONG).show();
 
                 finish();
             }
         });
     }
 
+    private void saveLocationToSharedPrefs(String location) {
+
+        // Retrieve existing work sites first.
+        SharedPreferences sharedPreferences =
+                getSharedPreferences(LocationsActivity.LOCATION_PREF, Context.MODE_PRIVATE);
+        ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
+        Gson gson = new Gson();
+        String jsonSavedWorkSites = sharedPreferences.getString("myList", "");
+        Log.d(TAG, "jsonSavedWorkSites = " + jsonSavedWorkSites);
+        Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
+
+        if (jsonSavedWorkSites != "") {
+            ArrayList<WorkSite> prevWorkSites = gson.fromJson(jsonSavedWorkSites, type);
+            workSites = prevWorkSites;
+        }
+
+        // Append new work site to existing list of sites.
+        LatLng latLng = findLatLngFromAddress(location);
+        WorkSite workSite = new WorkSite(location, latLng);
+
+        workSites.add(workSite);
+
+        // Convert the new work site list into a Json string.
+        String jsonWorkSites = gson.toJson(workSites);
+
+        // Overwrite the old Json string with the new updated list.
+        SharedPreferences.Editor editor =
+                getSharedPreferences(LocationsActivity.LOCATION_PREF, MODE_PRIVATE).edit();
+        editor.putString("myList", jsonWorkSites);
+        editor.commit();
+
+        Log.v(TAG, sharedPreferences.getString("myList", "Not found"));
+
+        // Provide feedback to the user with a toast message.
+        Toast.makeText(getApplicationContext(), location + " is added.", Toast.LENGTH_LONG).show();
+    }
+
     /**
      * Returns a LatLng when given an address.
      */
     private LatLng findLatLngFromAddress(String searchAddress) {
-
         List<Address> addressList = null;
 
         if (searchAddress != null || !searchAddress.equals("")) {
-
             Geocoder geocoder = new Geocoder(getApplicationContext());
 
             try {
@@ -157,6 +161,7 @@ public class MapsActivity extends FragmentActivity implements
                         Toast.LENGTH_LONG).show();
             }
 
+            // Retrieve the first address in the list if there were multiple.
             if (addressList != null) {
                 Address address = addressList.get(0);
                 return new LatLng(address.getLatitude(), address.getLongitude());
@@ -221,20 +226,6 @@ public class MapsActivity extends FragmentActivity implements
         return intent;
     }
 
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
-//        textLat = (TextView) findViewById(R.id.lat);
-//        textLong = (TextView) findViewById(R.id.lon);
-//
-//        // initialize GoogleMaps
-//        initGMaps();
-//
-//        // create GoogleApiClient
-//        createGoogleApi();
-//    }
-
     // Create GoogleApiClient instance
     private void createGoogleApi() {
         Log.d(TAG, "createGoogleApi()");
@@ -262,28 +253,6 @@ public class MapsActivity extends FragmentActivity implements
         // Disconnect GoogleApiClient when stopping Activity
         googleApiClient.disconnect();
     }
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        MenuInflater inflater = getMenuInflater();
-//        inflater.inflate( R.menu.main_menu, menu );
-//        return true;
-//    }
-
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch ( item.getItemId() ) {
-//            case R.id.geofence: {
-//                startGeofence();
-//                return true;
-//            }
-//            case R.id.clear: {
-//                clearGeofence();
-//                return true;
-//            }
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
 
     private final int REQ_PERMISSION = 999;
 
@@ -332,20 +301,6 @@ public class MapsActivity extends FragmentActivity implements
         // TODO close app and warn user
     }
 
-//    // Initialize GoogleMaps
-//    private void initGMaps(){
-//        mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-//        mapFragment.getMapAsync(this);
-//    }
-
-//    // Callback called when Map is ready
-//    @Override
-//    public void onMapReady(GoogleMap googleMap) {
-//        Log.d(TAG, "onMapReady()");
-//        map = googleMap;
-//        map.setOnMapClickListener(this);
-//        map.setOnMarkerClickListener(this);
-//    }
 
     @Override
     public void onMapClick(LatLng latLng) {
