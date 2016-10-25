@@ -53,7 +53,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <service android:name=".GeofenceTransitionService" />
-        <service android:name=".LocationTracker" />
+        <service android:name=".LocationTrackerService" />
 
         <activity
             android:name=".CurrentPeriodActivity"

@@ -99,8 +99,12 @@ public class MapsActivity extends FragmentActivity implements
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String location = searchBar.getText().toString();
-
+                String searchAddress = searchBar.getText().toString();
+                LatLng latLng = findLatLngFromAddress(searchAddress);
+                String latLngMsg = "Lat: " + latLng.latitude + "Lng: " + latLng.longitude;
+                Log.d(TAG, latLngMsg);
+                saveLocationToSharedPrefs(searchAddress);
+                startGeofence(latLng, searchAddress);
                 finish();
             }
         });
@@ -113,7 +117,8 @@ public class MapsActivity extends FragmentActivity implements
                 getSharedPreferences(LocationsActivity.LOCATION_PREF, Context.MODE_PRIVATE);
         ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
         Gson gson = new Gson();
-        String jsonSavedWorkSites = sharedPreferences.getString("myList", "");
+        String jsonSavedWorkSites =
+                sharedPreferences.getString(LocationsActivity.LOCATION_PREF, "");
         Log.d(TAG, "jsonSavedWorkSites = " + jsonSavedWorkSites);
         Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
 
@@ -423,15 +428,15 @@ public class MapsActivity extends FragmentActivity implements
                 geoFenceMarker.remove();
 
             geoFenceMarker = mMap.addMarker(markerOptions);
-            startGeofence();
+            startGeofence(geoFenceMarker.getPosition(), GEOFENCE_REQ_ID);
         }
     }
 
     // Start Geofence creation process
-    private void startGeofence() {
+    private void startGeofence(LatLng latLng, String geoID) {
         Log.i(TAG, "startGeofence()");
         if (geoFenceMarker != null) {
-            Geofence geofence = createGeofence(geoFenceMarker.getPosition(), GEOFENCE_RADIUS);
+            Geofence geofence = createGeofence(latLng, GEOFENCE_RADIUS, geoID);
             GeofencingRequest geofenceRequest = createGeofenceRequest(geofence);
             addGeofence(geofenceRequest);
         } else {
@@ -444,10 +449,10 @@ public class MapsActivity extends FragmentActivity implements
     private static final float GEOFENCE_RADIUS = 500.0f; // in meters
 
     // Create a Geofence
-    private Geofence createGeofence(LatLng latLng, float radius) {
+    private Geofence createGeofence(LatLng latLng, float radius, String geoID) {
         Log.d(TAG, "createGeofence");
         return new Geofence.Builder()
-                .setRequestId(GEOFENCE_REQ_ID)
+                .setRequestId(geoID)
                 .setCircularRegion(latLng.latitude, latLng.longitude, radius)
                 .setExpirationDuration(GEO_DURATION)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER

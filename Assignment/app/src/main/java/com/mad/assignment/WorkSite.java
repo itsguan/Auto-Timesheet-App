@@ -10,8 +10,11 @@ import com.google.android.gms.maps.model.LatLng;
 public class WorkSite {
 
     private String address;
+    private String dateWorked;
     private double latitude;
     private double longitude;
+    private boolean currentlyWorking = false;
+
 
     public WorkSite(String address, LatLng latLng) {
         this.address = address;
@@ -21,5 +24,13 @@ public class WorkSite {
 
     public String getAddress() {
         return address;
+    }
+
+    public void setCurrentlyWorking(boolean currentlyWorking) {
+        this.currentlyWorking = currentlyWorking;
+    }
+
+    public boolean isCurrentlyWorking() {
+        return currentlyWorking;
     }
 }

@@ -16,7 +16,7 @@ import android.util.Log;
  * Created by Guan on 6/10/2016.
  */
 
-public class LocationTracker extends Service {
+public class LocationTrackerService extends Service {
 
     private static final String TAG = "BOOMBOOMTESTGPS";
     private LocationManager mLocationManager = null;

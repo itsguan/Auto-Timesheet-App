@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
 import android.support.v4.app.NotificationCompat;
@@ -18,7 +19,10 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingEvent;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,23 +48,54 @@ public class GeofenceTransitionService extends IntentService {
         }
 
         int geoFenceTransition = geofencingEvent.getGeofenceTransition();
-        // Check if the transition type is of interest
-        if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
-                geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT ) {
-            // Get the geofence that were triggered
-            List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
-            for (Geofence geofence : triggeringGeofences) {
-                Log.d(TAG, "GEOID: " + geofence.getRequestId());
-            }
-
-            String geofenceTransitionDetails = getGeofenceTrasitionDetails(geoFenceTransition, triggeringGeofences );
-
-            // Send notification details as a String
-            sendNotification( geofenceTransitionDetails );
-
-            Log.d(TAG, "triggered geofence");
+        // Check if the triggered transition is either entering or exiting.
+        switch (geoFenceTransition) {
+            case Geofence.GEOFENCE_TRANSITION_ENTER:
+                // Set the work location to currently working.
+                handleTransitionEvent(geofencingEvent, geoFenceTransition, true);
+                break;
+            case Geofence.GEOFENCE_TRANSITION_EXIT:
+                // Set the currently worked location to false as user is leaving.
+                handleTransitionEvent(geofencingEvent, geoFenceTransition, false);
+                break;
+            default:
+                Log.d(TAG, "Transition not known");
+                break;
         }
+    }
+
+    /**
+     * Finds the work site object that has the same address as the triggered geofence.
+     * Sets the work site to active or inactive depending on the transition state.
+     */
+    private void handleTransitionEvent(GeofencingEvent geofencingEvent, int geoFenceTransition,
+                                       boolean activeState) {
+
+        Log.d(TAG, "handleTransitionEvent()");
+
+        // Retrieve triggered geofences.
+        List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
+
+        // Find the work site object with the address of the geofence.
+        for (Geofence geofence : triggeringGeofences) {
+            Log.d(TAG, "GEOID: " + geofence.getRequestId());
+            WorkSite activeWorkSite = findWorkSiteWithAddress(geofence.getRequestId());
+
+            if (activeWorkSite != null) {
+                activeWorkSite.setCurrentlyWorking(activeState);
+            }
+            else {
+                Log.d(TAG, "Cannot find a work site on the geofence");
+            }
+        }
+
+        String geofenceTransitionDetails =
+                getGeofenceTrasitionDetails(geoFenceTransition, triggeringGeofences );
+
+        // Send notification details as a String
+        sendNotification( geofenceTransitionDetails );
+        Log.d(TAG, "triggered geofence");
     }
 
     private void showToastAtGeofence(GeofencingEvent geofencingEvent) {
@@ -71,6 +106,33 @@ public class GeofenceTransitionService extends IntentService {
         Log.d(TAG, latLngMsg);
     }
 
+    /**
+     * Finds a work site object from the shared prefs with the given address.
+     */
+    private WorkSite findWorkSiteWithAddress(String address) {
+
+        // Retrieve all active work sites from shared preferences first.
+        SharedPreferences sharedPreferences =
+                getSharedPreferences(LocationsActivity.LOCATION_PREF, Context.MODE_PRIVATE);
+        ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
+        Gson gson = new Gson();
+        String jsonSavedWorkSites =
+                sharedPreferences.getString(LocationsActivity.LOCATION_PREF, "");
+        Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
+
+        if (jsonSavedWorkSites != "") {
+            // Convert the json string back into a list of work site objects.
+            workSites = gson.fromJson(jsonSavedWorkSites, type);
+
+            // Look through all work sites and find the one with the same address.
+            for (WorkSite workSite : workSites) {
+                if (workSite.getAddress() == address) {
+                    return workSite;
+                }
+            }
+        }
+        return null;
+    }
 
     private String getGeofenceTrasitionDetails(int geoFenceTransition, List<Geofence> triggeringGeofences) {
         // get the ID of each geofence triggered
