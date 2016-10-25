@@ -104,7 +104,8 @@ public class MapsActivity extends FragmentActivity implements
                 String latLngMsg = "Lat: " + latLng.latitude + "Lng: " + latLng.longitude;
                 Log.d(TAG, latLngMsg);
                 saveLocationToSharedPrefs(searchAddress);
-                startGeofence(latLng, searchAddress);
+                markerForGeofence(latLng, searchAddress);
+                //startGeofence(latLng, searchAddress);
                 finish();
             }
         });
@@ -310,7 +311,7 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onMapClick(LatLng latLng) {
         Log.d(TAG, "onMapClick(" + latLng + ")");
-        markerForGeofence(latLng);
+        markerForGeofence(latLng, GEOFENCE_REQ_ID);
     }
 
     @Override
@@ -414,7 +415,7 @@ public class MapsActivity extends FragmentActivity implements
 
     private Marker geoFenceMarker;
 
-    private void markerForGeofence(LatLng latLng) {
+    private void markerForGeofence(LatLng latLng, String geoID) {
         Log.i(TAG, "markerForGeofence(" + latLng + ")");
         String title = latLng.latitude + ", " + latLng.longitude;
         // Define marker options
@@ -428,7 +429,7 @@ public class MapsActivity extends FragmentActivity implements
                 geoFenceMarker.remove();
 
             geoFenceMarker = mMap.addMarker(markerOptions);
-            startGeofence(geoFenceMarker.getPosition(), GEOFENCE_REQ_ID);
+            startGeofence(geoFenceMarker.getPosition(), geoID);
         }
     }
 
@@ -544,7 +545,7 @@ public class MapsActivity extends FragmentActivity implements
             double lat = Double.longBitsToDouble(sharedPref.getLong(KEY_GEOFENCE_LAT, -1));
             double lon = Double.longBitsToDouble(sharedPref.getLong(KEY_GEOFENCE_LON, -1));
             LatLng latLng = new LatLng(lat, lon);
-            markerForGeofence(latLng);
+            markerForGeofence(latLng, GEOFENCE_REQ_ID);
             drawGeofence();
         }
     }
