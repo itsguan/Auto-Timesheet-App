@@ -1,4 +1,4 @@
-package com.mad.assignment;
+package com.mad.assignment.constants;
 
 /**
  * Created by Guan on 26/10/2016.

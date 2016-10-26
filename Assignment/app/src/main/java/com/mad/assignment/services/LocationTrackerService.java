@@ -1,4 +1,4 @@
-package com.mad.assignment;
+package com.mad.assignment.services;
 
 import android.Manifest;
 import android.app.Service;

@@ -1,4 +1,4 @@
-package com.mad.assignment;
+package com.mad.assignment.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -48,6 +48,10 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.mad.assignment.constants.Constants;
+import com.mad.assignment.services.GeofenceTransitionService;
+import com.mad.assignment.R;
+import com.mad.assignment.model.WorkSite;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -110,6 +114,9 @@ public class MapsActivity extends FragmentActivity implements
         });
     }
 
+    /**
+     * Saves a location to the locations shared preferences.
+     */
     private void saveLocationToSharedPrefs(String location) {
 
         // Retrieve existing work sites first.

@@ -1,4 +1,4 @@
-package com.mad.assignment;
+package com.mad.assignment.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +14,10 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.mad.assignment.constants.Constants;
+import com.mad.assignment.services.LocationTrackerService;
+import com.mad.assignment.R;
+import com.mad.assignment.model.WorkSite;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

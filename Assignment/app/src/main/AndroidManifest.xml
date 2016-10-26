@@ -37,7 +37,7 @@
             android:value="work_log.db" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -48,19 +48,19 @@
         </activity>
 
         <activity
-            android:name=".MapsActivity"
+            android:name=".activity.MapsActivity"
             android:label="@string/title_activity_maps" />
 
         <activity
-            android:name=".LocationsActivity"
+            android:name=".activity.LocationsActivity"
             android:label="@string/locations_activity_label"
             android:theme="@style/AppTheme.NoActionBar" />
 
-        <service android:name=".GeofenceTransitionService" />
-        <service android:name=".LocationTrackerService" />
+        <service android:name=".services.GeofenceTransitionService" />
+        <service android:name=".services.LocationTrackerService" />
 
         <activity
-            android:name=".CurrentPeriodActivity"
+            android:name=".activity.CurrentPeriodActivity"
             android:label="Current Work Period">
 
         </activity>

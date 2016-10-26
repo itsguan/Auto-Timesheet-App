@@ -1,4 +1,4 @@
-package com.mad.assignment;
+package com.mad.assignment.services;
 
 import android.app.IntentService;
 import android.app.Notification;
@@ -21,6 +21,10 @@ import com.google.android.gms.location.GeofencingEvent;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.mad.assignment.constants.Constants;
+import com.mad.assignment.R;
+import com.mad.assignment.activity.MapsActivity;
+import com.mad.assignment.model.WorkSite;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

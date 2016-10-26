@@ -1,4 +1,4 @@
-package com.mad.assignment;
+package com.mad.assignment.model;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.maps.model.LatLng;
@@ -39,5 +39,13 @@ public class WorkSite extends SugarRecord{
 
     public void setHoursWorked(double hoursWorked) {
         this.hoursWorked = hoursWorked;
+    }
+
+    public String getDateWorked() {
+        return dateWorked;
+    }
+
+    public double getHoursWorked() {
+        return hoursWorked;
     }
 }
