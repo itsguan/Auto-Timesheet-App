@@ -83,7 +83,7 @@ public class GeofenceTransitionService extends IntentService {
             WorkSite activeWorkSite = findWorkSiteWithAddress(geofence.getRequestId());
 
             if (activeWorkSite != null) {
-                activeWorkSite.setCurrentlyWorking(activeState);
+                saveActiveWorkSiteToSharedPrefs(activeWorkSite);
             }
             else {
                 Log.d(TAG, "Cannot find a work site on the geofence");
@@ -96,6 +96,52 @@ public class GeofenceTransitionService extends IntentService {
         // Send notification details as a String
         sendNotification( geofenceTransitionDetails );
         Log.d(TAG, "triggered geofence");
+    }
+
+    private void saveActiveWorkSiteToSharedPrefs(WorkSite activeWorkSite) {
+        // Retrieve all active work sites from shared preferences first.
+        SharedPreferences sharedPreferences =
+                getSharedPreferences(LocationsActivity.LOCATION_PREF, Context.MODE_PRIVATE);
+        ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
+        Gson gson = new Gson();
+        String jsonSavedWorkSites =
+                sharedPreferences.getString(LocationsActivity.JSON_TAG, "");
+        Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
+
+        if (!jsonSavedWorkSites.equals("")) {
+            // Convert the json string back into a list of work site objects.
+            workSites = gson.fromJson(jsonSavedWorkSites, type);
+
+            // Find the index of the work site with the address of triggered site.
+            int indexOfTriggeredWorkSite = findIndexOfWorkSite(workSites, activeWorkSite);
+
+            // Set it to currently working within the list.
+            workSites.get(indexOfTriggeredWorkSite).setCurrentlyWorking(true);
+
+            // Convert the new work site list into a Json string.
+            String jsonWorkSites = gson.toJson(workSites);
+
+            // Overwrite the old Json string with the new updated list.
+            SharedPreferences.Editor editor =
+                    getSharedPreferences(LocationsActivity.LOCATION_PREF, MODE_PRIVATE).edit();
+            editor.putString(LocationsActivity.JSON_TAG, jsonWorkSites);
+            editor.commit();
+        }
+    }
+
+    /**
+     * Finds the index of a work site within a list by matching their address.
+     */
+    private int findIndexOfWorkSite(List<WorkSite> sites, WorkSite activeSite) {
+
+        for(int i = 0; i < sites.size(); i++) {
+
+            if (sites.get(i).getAddress().equals(activeSite.getAddress())) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     private void showToastAtGeofence(GeofencingEvent geofencingEvent) {
@@ -117,16 +163,18 @@ public class GeofenceTransitionService extends IntentService {
         ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
         Gson gson = new Gson();
         String jsonSavedWorkSites =
-                sharedPreferences.getString(LocationsActivity.LOCATION_PREF, "");
+                sharedPreferences.getString(LocationsActivity.JSON_TAG, "");
         Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
 
-        if (jsonSavedWorkSites != "") {
+        if (!jsonSavedWorkSites.equals("")) {
+            Log.d(TAG, "Searching for Json work site.");
             // Convert the json string back into a list of work site objects.
             workSites = gson.fromJson(jsonSavedWorkSites, type);
 
             // Look through all work sites and find the one with the same address.
             for (WorkSite workSite : workSites) {
-                if (workSite.getAddress() == address) {
+                Log.d(TAG, "'" + workSite.getAddress() + "'");
+                if (workSite.getAddress().equals(address)) {
                     return workSite;
                 }
             }

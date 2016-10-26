@@ -77,10 +77,10 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
         Gson gson = new Gson();
         String jsonSavedWorkSites =
-                sharedPreferences.getString(LocationsActivity.LOCATION_PREF, "");
+                sharedPreferences.getString(LocationsActivity.JSON_TAG, "");
         Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
 
-        if (jsonSavedWorkSites != "") {
+        if (!jsonSavedWorkSites.equals("")) {
             workSites = gson.fromJson(jsonSavedWorkSites, type);
 
             // Look through all work sites and find the one that is currently active.

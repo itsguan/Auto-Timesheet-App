@@ -350,7 +350,7 @@ public class MapsActivity extends FragmentActivity implements
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG, "onConnected()");
         getLastKnownLocation();
-        recoverGeofenceMarker();
+        //recoverGeofenceMarker();
     }
 
     // GoogleApiClient.ConnectionCallbacks suspended
