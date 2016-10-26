@@ -106,11 +106,11 @@ public class GeofenceTransitionService extends IntentService {
     private void saveActiveWorkSiteToSharedPrefs(WorkSite activeWorkSite, boolean activeState) {
         // Retrieve all active work sites from shared preferences first.
         SharedPreferences sharedPreferences =
-                getSharedPreferences(LocationsActivity.LOCATION_PREF, Context.MODE_PRIVATE);
+                getSharedPreferences(Constants.LOCATION_PREF, Context.MODE_PRIVATE);
         ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
         Gson gson = new Gson();
         String jsonSavedWorkSites =
-                sharedPreferences.getString(LocationsActivity.JSON_TAG, "");
+                sharedPreferences.getString(Constants.JSON_TAG, "");
         Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
 
         if (!jsonSavedWorkSites.equals("")) {
@@ -128,8 +128,8 @@ public class GeofenceTransitionService extends IntentService {
 
             // Overwrite the old Json string with the new updated list.
             SharedPreferences.Editor editor =
-                    getSharedPreferences(LocationsActivity.LOCATION_PREF, MODE_PRIVATE).edit();
-            editor.putString(LocationsActivity.JSON_TAG, jsonWorkSites);
+                    getSharedPreferences(Constants.LOCATION_PREF, MODE_PRIVATE).edit();
+            editor.putString(Constants.JSON_TAG, jsonWorkSites);
             editor.commit();
         }
     }
@@ -171,11 +171,11 @@ public class GeofenceTransitionService extends IntentService {
 
         // Retrieve all active work sites from shared preferences first.
         SharedPreferences sharedPreferences =
-                getSharedPreferences(LocationsActivity.LOCATION_PREF, Context.MODE_PRIVATE);
+                getSharedPreferences(Constants.LOCATION_PREF, Context.MODE_PRIVATE);
         ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
         Gson gson = new Gson();
         String jsonSavedWorkSites =
-                sharedPreferences.getString(LocationsActivity.JSON_TAG, "");
+                sharedPreferences.getString(Constants.JSON_TAG, "");
         Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
 
         if (!jsonSavedWorkSites.equals("")) {

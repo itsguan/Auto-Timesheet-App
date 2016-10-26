@@ -18,13 +18,9 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.lang.reflect.Type;
 
 public class LocationsActivity extends AppCompatActivity {
-
-    public static final String LOCATION_PREF = "locationPref";
-    public static final String JSON_TAG = "myList";
 
     private ListView mListView;
     private ArrayAdapter<String> mAdapter;
@@ -91,8 +87,8 @@ public class LocationsActivity extends AppCompatActivity {
      */
     private ArrayList<String> getAddressesFromPrefs() {
         SharedPreferences sharedPreferences =
-                getSharedPreferences(LOCATION_PREF, Context.MODE_PRIVATE);
-        String jsonWorkSites = sharedPreferences.getString(JSON_TAG, "");
+                getSharedPreferences(Constants.LOCATION_PREF, Context.MODE_PRIVATE);
+        String jsonWorkSites = sharedPreferences.getString(Constants.JSON_TAG, "");
         Log.d("JSONTAG", "jsonWorkSites = " + jsonWorkSites);
         Gson gson = new Gson();
         Type type = new TypeToken<ArrayList<WorkSite>>() {}.getType();
@@ -118,9 +114,9 @@ public class LocationsActivity extends AppCompatActivity {
         ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
         String jsonWorkSites = gson.toJson(workSites);
         SharedPreferences.Editor editor =
-                getSharedPreferences(LocationsActivity.LOCATION_PREF, MODE_PRIVATE).edit();
+                getSharedPreferences(Constants.LOCATION_PREF, MODE_PRIVATE).edit();
 
-        editor.putString(JSON_TAG, jsonWorkSites);
+        editor.putString(Constants.JSON_TAG, jsonWorkSites);
         editor.commit();
         refreshAdapter();
     }

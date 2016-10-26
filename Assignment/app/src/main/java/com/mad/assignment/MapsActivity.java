@@ -105,7 +105,6 @@ public class MapsActivity extends FragmentActivity implements
                 Log.d(TAG, latLngMsg);
                 saveLocationToSharedPrefs(searchAddress);
                 markerForGeofence(latLng, searchAddress);
-                //startGeofence(latLng, searchAddress);
                 finish();
             }
         });
@@ -115,17 +114,16 @@ public class MapsActivity extends FragmentActivity implements
 
         // Retrieve existing work sites first.
         SharedPreferences sharedPreferences =
-                getSharedPreferences(LocationsActivity.LOCATION_PREF, Context.MODE_PRIVATE);
+                getSharedPreferences(Constants.LOCATION_PREF, Context.MODE_PRIVATE);
         ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
         Gson gson = new Gson();
         String jsonSavedWorkSites =
-                sharedPreferences.getString(LocationsActivity.LOCATION_PREF, "");
+                sharedPreferences.getString(Constants.JSON_TAG, "");
         Log.d(TAG, "jsonSavedWorkSites = " + jsonSavedWorkSites);
         Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
 
         if (jsonSavedWorkSites != "") {
-            ArrayList<WorkSite> prevWorkSites = gson.fromJson(jsonSavedWorkSites, type);
-            workSites = prevWorkSites;
+            workSites = gson.fromJson(jsonSavedWorkSites, type);
         }
 
         // Append new work site to existing list of sites.
@@ -139,11 +137,9 @@ public class MapsActivity extends FragmentActivity implements
 
         // Overwrite the old Json string with the new updated list.
         SharedPreferences.Editor editor =
-                getSharedPreferences(LocationsActivity.LOCATION_PREF, MODE_PRIVATE).edit();
-        editor.putString("myList", jsonWorkSites);
+                getSharedPreferences(Constants.LOCATION_PREF, MODE_PRIVATE).edit();
+        editor.putString(Constants.JSON_TAG, jsonWorkSites);
         editor.commit();
-
-        Log.v(TAG, sharedPreferences.getString("myList", "Not found"));
 
         // Provide feedback to the user with a toast message.
         Toast.makeText(getApplicationContext(), location + " is added.", Toast.LENGTH_LONG).show();

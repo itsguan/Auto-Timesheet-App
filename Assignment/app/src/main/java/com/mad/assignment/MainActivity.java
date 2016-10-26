@@ -8,7 +8,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -76,11 +75,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Retrieve existing work sites first.
         SharedPreferences sharedPreferences =
-                getSharedPreferences(LocationsActivity.LOCATION_PREF, Context.MODE_PRIVATE);
+                getSharedPreferences(Constants.LOCATION_PREF, Context.MODE_PRIVATE);
         ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
         Gson gson = new Gson();
         String jsonSavedWorkSites =
-                sharedPreferences.getString(LocationsActivity.JSON_TAG, "");
+                sharedPreferences.getString(Constants.JSON_TAG, "");
         Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
 
         if (!jsonSavedWorkSites.equals("")) {
