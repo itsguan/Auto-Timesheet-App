@@ -83,7 +83,12 @@ public class GeofenceTransitionService extends IntentService {
             WorkSite activeWorkSite = findWorkSiteWithAddress(geofence.getRequestId());
 
             if (activeWorkSite != null) {
+
+                // Save to shared prefs so that MainActivity can see.
                 saveActiveWorkSiteToSharedPrefs(activeWorkSite, activeState);
+
+                // Save to DB so that compiled period can see.
+                saveActiveWorkSiteToDatabase(activeWorkSite, activeState);
             }
             else {
                 Log.d(TAG, "Cannot find a work site on the geofence");
@@ -127,6 +132,13 @@ public class GeofenceTransitionService extends IntentService {
             editor.putString(LocationsActivity.JSON_TAG, jsonWorkSites);
             editor.commit();
         }
+    }
+
+    private void saveActiveWorkSiteToDatabase(WorkSite activeWorkSite, boolean activeState) {
+        if (!activeState) {
+            activeWorkSite.save();
+        }
+
     }
 
     /**
