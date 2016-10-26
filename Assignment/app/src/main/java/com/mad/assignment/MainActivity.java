@@ -69,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
         setCurrentlyWorkingToActiveSite();
     }
 
+    /**
+     * Sets the TextView to show a work site that the user is in.
+     */
     private void setCurrentlyWorkingToActiveSite() {
 
         // Retrieve existing work sites first.
@@ -82,12 +85,19 @@ public class MainActivity extends AppCompatActivity {
 
         if (!jsonSavedWorkSites.equals("")) {
             workSites = gson.fromJson(jsonSavedWorkSites, type);
+            boolean activeFound = false;
 
             // Look through all work sites and find the one that is currently active.
             for (WorkSite workSite : workSites) {
                 if (workSite.isCurrentlyWorking() == true) {
                     mActiveWorkSite.setText(workSite.getAddress());
+                    activeFound = true;
                 }
+            }
+
+            // If no active sites were found, set text to not at a worksite.
+            if (!activeFound) {
+                mActiveWorkSite.setText(R.string.main_activity_not_at_worksite);
             }
         }
     }

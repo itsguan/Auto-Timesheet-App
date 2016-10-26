@@ -83,7 +83,7 @@ public class GeofenceTransitionService extends IntentService {
             WorkSite activeWorkSite = findWorkSiteWithAddress(geofence.getRequestId());
 
             if (activeWorkSite != null) {
-                saveActiveWorkSiteToSharedPrefs(activeWorkSite);
+                saveActiveWorkSiteToSharedPrefs(activeWorkSite, activeState);
             }
             else {
                 Log.d(TAG, "Cannot find a work site on the geofence");
@@ -98,7 +98,7 @@ public class GeofenceTransitionService extends IntentService {
         Log.d(TAG, "triggered geofence");
     }
 
-    private void saveActiveWorkSiteToSharedPrefs(WorkSite activeWorkSite) {
+    private void saveActiveWorkSiteToSharedPrefs(WorkSite activeWorkSite, boolean activeState) {
         // Retrieve all active work sites from shared preferences first.
         SharedPreferences sharedPreferences =
                 getSharedPreferences(LocationsActivity.LOCATION_PREF, Context.MODE_PRIVATE);
@@ -116,7 +116,7 @@ public class GeofenceTransitionService extends IntentService {
             int indexOfTriggeredWorkSite = findIndexOfWorkSite(workSites, activeWorkSite);
 
             // Set it to currently working within the list.
-            workSites.get(indexOfTriggeredWorkSite).setCurrentlyWorking(true);
+            workSites.get(indexOfTriggeredWorkSite).setCurrentlyWorking(activeState);
 
             // Convert the new work site list into a Json string.
             String jsonWorkSites = gson.toJson(workSites);
