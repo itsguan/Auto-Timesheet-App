@@ -113,6 +113,7 @@ public class GeofenceTransitionService extends IntentService {
 
     /**
      * Saves the work site corresponding to the triggered geofence to the shared prefs.
+     *
      * @param activeWorkSite
      * @param activeState
      */
@@ -148,45 +149,75 @@ public class GeofenceTransitionService extends IntentService {
         }
     }
 
-    private void saveActiveWorkSiteToDatabase(WorkSite activeWorkSite, boolean activeState) {
-        if (!activeState) {
-            activeWorkSite.save();
+    private void saveWorkSiteToDatabase(WorkSite recentlyLeftWorkSite, double hoursWorked) {
+
+        // Retrieve all work entries.
+        List<WorkSite> workSites = WorkSite.listAll(WorkSite.class);
+
+        // Local variable to see if there is already a work site saved in the DB.
+        WorkSite existingWorkSite = new WorkSite();
+
+        // The recently left work site could still be at the same place.
+        // Check if it is already recorded in the DB save it to existingWorkSite
+        if (workSites.size() > 0) {
+            int indexOfExistingWorkSite = findIndexOfWorkSite(workSites, recentlyLeftWorkSite);
+
+            // Try to find the existing work site if index is not -1.
+            // NOTE: SugarORM starts its index at 1, not 0.
+            if (indexOfExistingWorkSite != -1) {
+                existingWorkSite = WorkSite.findById(WorkSite.class,
+                        indexOfExistingWorkSite + 1);
+            }
+        }
+
+        // Verify that the DB has retrieved an existingWorkSite
+        if (existingWorkSite.getAddress() != null && !existingWorkSite.equals("")) {
+
+            if (existingWorkSite.getAddress().equals(recentlyLeftWorkSite.getAddress())) {
+                existingWorkSite.incrementHoursWorked(hoursWorked);
+                existingWorkSite.save();
+            }
+
+        } else {
+            // Must add new entry
+            WorkSite firstWorkSite = recentlyLeftWorkSite;
+            firstWorkSite.setHoursWorked(hoursWorked);
+            firstWorkSite.save();
         }
     }
 
     private Handler mLogTimerHandler = new Handler();
-    private double mHoursWorked = 0;
+    private static double mHoursWorked = 0;
 
     /**
      * Increment hours worked when in a work site. Records this number when user leaves it.
      */
-    private void handleTimerForHoursWorked(WorkSite activeSite, boolean activeState) {
+    private void handleTimerForHoursWorked(final WorkSite activeSite, final boolean activeState) {
 
-        if (activeState) {
-            // If the user is at a work site, start a timer which stores the hours worked as field.
-            mLogTimerHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
+
+        // If the user is at a work site, start a timer which stores the hours worked as field.
+        mLogTimerHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (activeState) {
                     mHoursWorked++;
                     Log.d(TAG, Double.toString(mHoursWorked));
                     mLogTimerHandler.postDelayed(this, TIMER_INTERVAL);
+                } else {
+                    Log.d(TAG, "Start of else: " + Double.toString(mHoursWorked));
+                    // Stop the timer by removing all runnables in the handler.
+                    mLogTimerHandler.removeCallbacks(null);
+
+                    // Once the user leaves the site, update the hours worked.
+                    saveWorkSiteToDatabase(activeSite, mHoursWorked);
+
+                    // Reset hours worked.
+                    mHoursWorked = 0;
                 }
-            }, TIMER_INTERVAL);
-        }
-        else {
-            // Once the user leaves the site, update the hours worked.
-            List<WorkSite> workSites = WorkSite.listAll(WorkSite.class);
-            int indexOfRecentlyLeftSite = findIndexOfWorkSite(workSites, activeSite);
-            WorkSite recentlyLeftWorkSite = WorkSite.findById(WorkSite.class,
-                    indexOfRecentlyLeftSite + 1);
-
-            recentlyLeftWorkSite.setHoursWorked(mHoursWorked);
-            recentlyLeftWorkSite.save();
-
-            // Reset hours worked.
-            mHoursWorked = 0;
-        }
+            }
+        }, TIMER_INTERVAL);
     }
+
 
     /**
      * Finds the index of a work site within a list by matching their address.
