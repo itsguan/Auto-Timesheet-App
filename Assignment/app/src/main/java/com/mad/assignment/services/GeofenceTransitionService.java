@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -34,7 +35,7 @@ import java.util.List;
 public class GeofenceTransitionService extends IntentService {
 
     private static final String TAG = GeofenceTransitionService.class.getSimpleName();
-
+    private static final int TIMER_INTERVAL = 1000;
     public static final int GEOFENCE_NOTIFICATION_ID = 0;
 
     public GeofenceTransitionService() {
@@ -45,9 +46,9 @@ public class GeofenceTransitionService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         // Handling errors
-        if ( geofencingEvent.hasError() ) {
-            String errorMsg = getErrorString(geofencingEvent.getErrorCode() );
-            Log.e( TAG, errorMsg );
+        if (geofencingEvent.hasError()) {
+            String errorMsg = getErrorString(geofencingEvent.getErrorCode());
+            Log.e(TAG, errorMsg);
             return;
         }
 
@@ -88,25 +89,33 @@ public class GeofenceTransitionService extends IntentService {
 
             if (activeWorkSite != null) {
 
+                handleTimerForHoursWorked(activeWorkSite, activeState);
+
                 // Save to shared prefs so that MainActivity can see.
                 saveActiveWorkSiteToSharedPrefs(activeWorkSite, activeState);
 
                 // Save to DB so that compiled period can see.
-                saveActiveWorkSiteToDatabase(activeWorkSite, activeState);
-            }
-            else {
+                //saveActiveWorkSiteToDatabase(activeWorkSite, activeState);
+
+
+            } else {
                 Log.d(TAG, "Cannot find a work site on the geofence");
             }
         }
 
         String geofenceTransitionDetails =
-                getGeofenceTrasitionDetails(geoFenceTransition, triggeringGeofences );
+                getGeofenceTrasitionDetails(geoFenceTransition, triggeringGeofences);
 
         // Send notification details as a String
-        sendNotification( geofenceTransitionDetails );
+        sendNotification(geofenceTransitionDetails);
         Log.d(TAG, "triggered geofence");
     }
 
+    /**
+     * Saves the work site corresponding to the triggered geofence to the shared prefs.
+     * @param activeWorkSite
+     * @param activeState
+     */
     private void saveActiveWorkSiteToSharedPrefs(WorkSite activeWorkSite, boolean activeState) {
         // Retrieve all active work sites from shared preferences first.
         SharedPreferences sharedPreferences =
@@ -115,7 +124,8 @@ public class GeofenceTransitionService extends IntentService {
         Gson gson = new Gson();
         String jsonSavedWorkSites =
                 sharedPreferences.getString(Constants.JSON_TAG, "");
-        Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
+        Type type = new TypeToken<ArrayList<WorkSite>>() {
+        }.getType();
 
         if (!jsonSavedWorkSites.equals("")) {
             // Convert the json string back into a list of work site objects.
@@ -142,7 +152,40 @@ public class GeofenceTransitionService extends IntentService {
         if (!activeState) {
             activeWorkSite.save();
         }
+    }
 
+    private Handler mLogTimerHandler = new Handler();
+    private double mHoursWorked = 0;
+
+    /**
+     * Increment hours worked when in a work site. Records this number when user leaves it.
+     */
+    private void handleTimerForHoursWorked(WorkSite activeSite, boolean activeState) {
+
+        if (activeState) {
+            // If the user is at a work site, start a timer which stores the hours worked as field.
+            mLogTimerHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mHoursWorked++;
+                    Log.d(TAG, Double.toString(mHoursWorked));
+                    mLogTimerHandler.postDelayed(this, TIMER_INTERVAL);
+                }
+            }, TIMER_INTERVAL);
+        }
+        else {
+            // Once the user leaves the site, update the hours worked.
+            List<WorkSite> workSites = WorkSite.listAll(WorkSite.class);
+            int indexOfRecentlyLeftSite = findIndexOfWorkSite(workSites, activeSite);
+            WorkSite recentlyLeftWorkSite = WorkSite.findById(WorkSite.class,
+                    indexOfRecentlyLeftSite + 1);
+
+            recentlyLeftWorkSite.setHoursWorked(mHoursWorked);
+            recentlyLeftWorkSite.save();
+
+            // Reset hours worked.
+            mHoursWorked = 0;
+        }
     }
 
     /**
@@ -150,7 +193,7 @@ public class GeofenceTransitionService extends IntentService {
      */
     private int findIndexOfWorkSite(List<WorkSite> sites, WorkSite activeSite) {
 
-        for(int i = 0; i < sites.size(); i++) {
+        for (int i = 0; i < sites.size(); i++) {
 
             if (sites.get(i).getAddress().equals(activeSite.getAddress())) {
                 return i;
@@ -180,7 +223,8 @@ public class GeofenceTransitionService extends IntentService {
         Gson gson = new Gson();
         String jsonSavedWorkSites =
                 sharedPreferences.getString(Constants.JSON_TAG, "");
-        Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
+        Type type = new TypeToken<ArrayList<WorkSite>>() {
+        }.getType();
 
         if (!jsonSavedWorkSites.equals("")) {
             Log.d(TAG, "Searching for Json work site.");
@@ -201,20 +245,20 @@ public class GeofenceTransitionService extends IntentService {
     private String getGeofenceTrasitionDetails(int geoFenceTransition, List<Geofence> triggeringGeofences) {
         // get the ID of each geofence triggered
         ArrayList<String> triggeringGeofencesList = new ArrayList<>();
-        for ( Geofence geofence : triggeringGeofences ) {
-            triggeringGeofencesList.add( geofence.getRequestId() );
+        for (Geofence geofence : triggeringGeofences) {
+            triggeringGeofencesList.add(geofence.getRequestId());
         }
 
         String status = null;
-        if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER )
+        if (geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER)
             status = "Entering ";
-        else if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT )
+        else if (geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT)
             status = "Exiting ";
-        return status + TextUtils.join( ", ", triggeringGeofencesList);
+        return status + TextUtils.join(", ", triggeringGeofencesList);
     }
 
-    private void sendNotification( String msg ) {
-        Log.i(TAG, "sendNotification: " + msg );
+    private void sendNotification(String msg) {
+        Log.i(TAG, "sendNotification: " + msg);
 
         // Intent to start the main Activity
         Intent notificationIntent = MapsActivity.makeNotificationIntent(
@@ -229,7 +273,7 @@ public class GeofenceTransitionService extends IntentService {
 
         // Creating and sending Notification
         NotificationManager notificatioMng =
-                (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificatioMng.notify(
                 GEOFENCE_NOTIFICATION_ID,
                 createNotification(msg, notificationPendingIntent));

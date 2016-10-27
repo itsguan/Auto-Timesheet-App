@@ -1,6 +1,5 @@
 package com.mad.assignment.model;
 
-import com.google.android.gms.location.Geofence;
 import com.google.android.gms.maps.model.LatLng;
 import com.orm.SugarRecord;
 
@@ -8,7 +7,7 @@ import com.orm.SugarRecord;
  * Created by Guan on 12/10/2016.
  */
 
-public class WorkSite extends SugarRecord{
+public class WorkSite extends SugarRecord {
 
     private String address;
     private String dateWorked;
@@ -17,7 +16,8 @@ public class WorkSite extends SugarRecord{
     private double hoursWorked;
     private boolean currentlyWorking = false;
 
-    public WorkSite() {}
+    public WorkSite() {
+    }
 
     public WorkSite(String address, LatLng latLng) {
         this.address = address;
@@ -41,6 +41,10 @@ public class WorkSite extends SugarRecord{
         this.hoursWorked = hoursWorked;
     }
 
+    public void incrementHoursWorked(double increment) {
+        hoursWorked += increment;
+    }
+
     public String getDateWorked() {
         return dateWorked;
     }
@@ -48,4 +52,25 @@ public class WorkSite extends SugarRecord{
     public double getHoursWorked() {
         return hoursWorked;
     }
+
+    /*
+    public void startTimer() {
+        Timer timer = new Timer();
+
+        startTimer();
+
+        timer.schedule(timerTask, 0, 1000);
+
+        Log.d("WorkSite", "Hours worked at " + address + ": " + hoursWorked);
+    }
+
+    private void startTimerTask() {
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                hoursWorked++;
+            }
+        };
+    }
+    */
 }

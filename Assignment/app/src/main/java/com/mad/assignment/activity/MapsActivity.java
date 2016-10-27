@@ -104,12 +104,19 @@ public class MapsActivity extends FragmentActivity implements
             @Override
             public void onClick(View v) {
                 String searchAddress = searchBar.getText().toString();
-                LatLng latLng = findLatLngFromAddress(searchAddress);
-                String latLngMsg = "Lat: " + latLng.latitude + "Lng: " + latLng.longitude;
-                Log.d(TAG, latLngMsg);
-                saveLocationToSharedPrefs(searchAddress);
-                markerForGeofence(latLng, searchAddress);
-                finish();
+
+                if (!searchAddress.equals("")) {
+                    LatLng latLng = findLatLngFromAddress(searchAddress);
+                    String latLngMsg = "Lat: " + latLng.latitude + "Lng: " + latLng.longitude;
+                    Log.d(TAG, latLngMsg);
+                    saveLocationToSharedPrefs(searchAddress);
+                    markerForGeofence(latLng, searchAddress);
+                    finish();
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), "Can't save an empty address",
+                            Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -171,7 +178,7 @@ public class MapsActivity extends FragmentActivity implements
             }
 
             // Retrieve the first address in the list if there were multiple.
-            if (addressList != null) {
+            if (addressList != null && addressList.size() != 0) {
                 Address address = addressList.get(0);
                 return new LatLng(address.getLatitude(), address.getLongitude());
             }
