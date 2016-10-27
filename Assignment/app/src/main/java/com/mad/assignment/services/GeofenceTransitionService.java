@@ -28,7 +28,9 @@ import com.mad.assignment.activity.MapsActivity;
 import com.mad.assignment.model.WorkSite;
 
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -36,7 +38,14 @@ public class GeofenceTransitionService extends IntentService {
 
     private static final String TAG = GeofenceTransitionService.class.getSimpleName();
     private static final int TIMER_INTERVAL = 1000;
+
     public static final int GEOFENCE_NOTIFICATION_ID = 0;
+
+    /**
+     * Controls the timer to record the hours worked.
+     */
+    private Handler mLogTimerHandler = new Handler();
+    private static double mHoursWorked = 0;
 
     public GeofenceTransitionService() {
         super(TAG);
@@ -113,9 +122,6 @@ public class GeofenceTransitionService extends IntentService {
 
     /**
      * Saves the work site corresponding to the triggered geofence to the shared prefs.
-     *
-     * @param activeWorkSite
-     * @param activeState
      */
     private void saveActiveWorkSiteToSharedPrefs(WorkSite activeWorkSite, boolean activeState) {
         // Retrieve all active work sites from shared preferences first.
@@ -149,6 +155,42 @@ public class GeofenceTransitionService extends IntentService {
         }
     }
 
+
+
+    /**
+     * Increment hours worked when in a work site. Records this number when user leaves it.
+     */
+    private void handleTimerForHoursWorked(final WorkSite activeSite, final boolean activeState) {
+
+        // If the user is at a work site, start a timer which stores the hours worked as field.
+        mLogTimerHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (activeState) {
+                    mHoursWorked++;
+                    Log.d(TAG, Double.toString(mHoursWorked));
+                    Log.d(TAG, new SimpleDateFormat("dd/MM/yy").format(new Date()));
+                    mLogTimerHandler.postDelayed(this, TIMER_INTERVAL);
+                } else {
+                    Log.d(TAG, "Start of else: " + Double.toString(mHoursWorked));
+                    // Stop the timer by removing all runnables in the handler.
+                    mLogTimerHandler.removeCallbacks(null);
+
+                    // Once the user leaves the site, update the hours worked.
+                    saveWorkSiteToDatabase(activeSite, mHoursWorked);
+
+                    // Reset hours worked.
+                    mHoursWorked = 0;
+                }
+            }
+        }, TIMER_INTERVAL);
+    }
+
+    /**
+     * Saves the recently left work site to the DB with SugarORM.
+     * Checks if there's already work done at the same location on the same day.
+     * If there is, update the hours worked instead.
+     */
     private void saveWorkSiteToDatabase(WorkSite recentlyLeftWorkSite, double hoursWorked) {
 
         // Retrieve all work entries.
@@ -156,6 +198,8 @@ public class GeofenceTransitionService extends IntentService {
 
         // Local variable to see if there is already a work site saved in the DB.
         WorkSite existingWorkSite = new WorkSite();
+
+        String currentDate = new SimpleDateFormat(Constants.DATE_FORMAT).format(new Date());
 
         // The recently left work site could still be at the same place.
         // Check if it is already recorded in the DB save it to existingWorkSite
@@ -173,49 +217,21 @@ public class GeofenceTransitionService extends IntentService {
         // Verify that the DB has retrieved an existingWorkSite
         if (existingWorkSite.getAddress() != null && !existingWorkSite.equals("")) {
 
+            // Check if the date AND address match with the existing work log.
             if (existingWorkSite.getAddress().equals(recentlyLeftWorkSite.getAddress())) {
-                existingWorkSite.incrementHoursWorked(hoursWorked);
-                existingWorkSite.save();
+                if (existingWorkSite.getDateWorked().equals(currentDate)) {
+                    existingWorkSite.incrementHoursWorked(hoursWorked);
+                    existingWorkSite.save();
+                }
             }
 
         } else {
             // Must add new entry
             WorkSite firstWorkSite = recentlyLeftWorkSite;
             firstWorkSite.setHoursWorked(hoursWorked);
+            firstWorkSite.setDateWorked(currentDate);
             firstWorkSite.save();
         }
-    }
-
-    private Handler mLogTimerHandler = new Handler();
-    private static double mHoursWorked = 0;
-
-    /**
-     * Increment hours worked when in a work site. Records this number when user leaves it.
-     */
-    private void handleTimerForHoursWorked(final WorkSite activeSite, final boolean activeState) {
-
-
-        // If the user is at a work site, start a timer which stores the hours worked as field.
-        mLogTimerHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (activeState) {
-                    mHoursWorked++;
-                    Log.d(TAG, Double.toString(mHoursWorked));
-                    mLogTimerHandler.postDelayed(this, TIMER_INTERVAL);
-                } else {
-                    Log.d(TAG, "Start of else: " + Double.toString(mHoursWorked));
-                    // Stop the timer by removing all runnables in the handler.
-                    mLogTimerHandler.removeCallbacks(null);
-
-                    // Once the user leaves the site, update the hours worked.
-                    saveWorkSiteToDatabase(activeSite, mHoursWorked);
-
-                    // Reset hours worked.
-                    mHoursWorked = 0;
-                }
-            }
-        }, TIMER_INTERVAL);
     }
 
 
@@ -232,14 +248,6 @@ public class GeofenceTransitionService extends IntentService {
         }
 
         return -1;
-    }
-
-    private void showToastAtGeofence(GeofencingEvent geofencingEvent) {
-        Location locationOfGeofence = geofencingEvent.getTriggeringLocation();
-        LatLng latLng = new LatLng(locationOfGeofence.getLatitude(), locationOfGeofence.getLongitude());
-        String latLngMsg = "Lat: " + latLng.latitude + "Lng: " + latLng.longitude;
-        Toast.makeText(getApplicationContext(), latLngMsg, Toast.LENGTH_LONG).show();
-        Log.d(TAG, latLngMsg);
     }
 
     /**

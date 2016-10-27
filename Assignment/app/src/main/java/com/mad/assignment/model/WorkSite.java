@@ -25,6 +25,8 @@ public class WorkSite extends SugarRecord {
         longitude = latLng.longitude;
     }
 
+
+
     public String getAddress() {
         return address;
     }
@@ -49,28 +51,11 @@ public class WorkSite extends SugarRecord {
         return dateWorked;
     }
 
+    public void setDateWorked(String dateWorked) {
+        this.dateWorked = dateWorked;
+    }
+
     public double getHoursWorked() {
         return hoursWorked;
     }
-
-    /*
-    public void startTimer() {
-        Timer timer = new Timer();
-
-        startTimer();
-
-        timer.schedule(timerTask, 0, 1000);
-
-        Log.d("WorkSite", "Hours worked at " + address + ": " + hoursWorked);
-    }
-
-    private void startTimerTask() {
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                hoursWorked++;
-            }
-        };
-    }
-    */
 }
