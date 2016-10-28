@@ -30,17 +30,13 @@ import android.app.PendingIntent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -49,6 +45,7 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mad.assignment.constants.Constants;
+import com.mad.assignment.constants.GlobalGoogleApiClient;
 import com.mad.assignment.services.GeofenceTransitionService;
 import com.mad.assignment.R;
 import com.mad.assignment.model.WorkSite;
@@ -75,6 +72,9 @@ public class MapsActivity extends FragmentActivity implements
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
+        googleApiClient = GlobalGoogleApiClient.getSingletonGoogleApiClient();
 
         textLat = (TextView) findViewById(R.id.lat);
         textLong = (TextView) findViewById(R.id.lon);
@@ -114,6 +114,12 @@ public class MapsActivity extends FragmentActivity implements
                 }
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        googleApiClient.connect();
     }
 
     /**

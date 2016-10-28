@@ -23,6 +23,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mad.assignment.constants.Constants;
+import com.mad.assignment.constants.GlobalGoogleApiClient;
 import com.mad.assignment.services.LocationTrackerService;
 import com.mad.assignment.R;
 import com.mad.assignment.model.WorkSite;
@@ -40,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        GlobalGoogleApiClient globalGoogleApiClient = new GlobalGoogleApiClient(this);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -120,7 +123,8 @@ public class MainActivity extends AppCompatActivity {
     private void firstTimeCheckPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            // Required permissions are granted. Nothing to worry about.
+            // Required permissions are granted. Start LocationTrackerService.
+            startService(new Intent(this, LocationTrackerService.class));
         } else {
             // Ask user to accept access fine location permissions.
             ActivityCompat.requestPermissions(
