@@ -60,6 +60,9 @@ public class MapsActivity extends FragmentActivity implements
         GoogleMap.OnMarkerClickListener,
         ResultCallback<Status> {
 
+    private static final String TAG = MapsActivity.class.getSimpleName();
+
+    private GoogleApiClient googleApiClient;
     private GoogleMap mMap;
 
     @Override
@@ -102,9 +105,12 @@ public class MapsActivity extends FragmentActivity implements
                     LatLng latLng = findLatLngFromAddress(searchAddress);
                     String latLngMsg = "Lat: " + latLng.latitude + "Lng: " + latLng.longitude;
                     Log.d(TAG, latLngMsg);
-                    saveLocationToSharedPrefs(searchAddress);
-                    markerForGeofence(latLng, searchAddress);
-                    finish();
+
+                    // Only create geofence and finish if address was saved properly.
+                    if (saveLocationToSharedPrefs(searchAddress)) {
+                        markerForGeofence(latLng, searchAddress);
+                        finish();
+                    }
                 }
                 else {
                     Toast.makeText(getApplicationContext(), "Can't save an empty address",
@@ -131,7 +137,7 @@ public class MapsActivity extends FragmentActivity implements
     /**
      * Saves a location to the locations shared preferences.
      */
-    private void saveLocationToSharedPrefs(String location) {
+    private boolean saveLocationToSharedPrefs(String location) {
 
         // Retrieve existing work sites first.
         SharedPreferences sharedPreferences =
@@ -151,7 +157,21 @@ public class MapsActivity extends FragmentActivity implements
         LatLng latLng = findLatLngFromAddress(location);
         WorkSite workSite = new WorkSite(location, latLng);
 
-        workSites.add(workSite);
+        // Add first entry to a newly created shared prefs.
+        if (workSites.size() == 0) {
+            workSites.add(workSite);
+        } else {
+            // Adds the new work site to the shared prefs only if it doesn't exist already.
+            for (WorkSite existingWorkSite : workSites) {
+                if (!existingWorkSite.getAddress().equals(workSite.getAddress())) {
+                    workSites.add(workSite);
+                } else {
+                    Toast.makeText(this, "This address has already been saved.",
+                            Toast.LENGTH_LONG).show();
+                    return false;
+                }
+            }
+        }
 
         // Convert the new work site list into a Json string.
         String jsonWorkSites = gson.toJson(workSites);
@@ -164,6 +184,7 @@ public class MapsActivity extends FragmentActivity implements
 
         // Provide feedback to the user with a toast message.
         Toast.makeText(getApplicationContext(), location + " is added.", Toast.LENGTH_LONG).show();
+        return true;
     }
 
     /**
@@ -242,10 +263,7 @@ public class MapsActivity extends FragmentActivity implements
 
     // Geofencing stuff:
 
-    private static final String TAG = MapsActivity.class.getSimpleName();
 
-    private GoogleMap map;
-    private GoogleApiClient googleApiClient;
 
 
     private TextView textLat, textLong;
@@ -260,8 +278,6 @@ public class MapsActivity extends FragmentActivity implements
         intent.putExtra(NOTIFICATION_MSG, msg);
         return intent;
     }
-
-
 
     private void writeActualLocation(Location location) {
         textLat.setText("Lat: " + location.getLatitude());

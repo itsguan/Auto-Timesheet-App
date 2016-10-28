@@ -9,6 +9,8 @@ import com.orm.SugarRecord;
 
 public class WorkSite extends SugarRecord {
 
+    private static final double MAX_HOURS_WORKED = 24;
+
     private String address;
     private String dateWorked;
     private double latitude;
@@ -24,8 +26,6 @@ public class WorkSite extends SugarRecord {
         latitude = latLng.latitude;
         longitude = latLng.longitude;
     }
-
-
 
     public String getAddress() {
         return address;
@@ -44,7 +44,11 @@ public class WorkSite extends SugarRecord {
     }
 
     public void incrementHoursWorked(double increment) {
-        hoursWorked += increment;
+        if (hoursWorked < MAX_HOURS_WORKED) {
+            hoursWorked += increment;
+        } else {
+            hoursWorked = MAX_HOURS_WORKED;
+        }
     }
 
     public String getDateWorked() {

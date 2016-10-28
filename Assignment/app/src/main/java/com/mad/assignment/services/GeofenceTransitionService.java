@@ -169,7 +169,7 @@ public class GeofenceTransitionService extends IntentService {
             public void run() {
                 if (sRunnableTimerState) {
                     sHoursWorked++;
-                    //Log.d(TAG, Double.toString(sHoursWorked));
+                    Log.d(TAG, "Hours worked: " + Double.toString(sHoursWorked));
                     //Log.d(TAG, new SimpleDateFormat("dd/MM/yy").format(new Date()));
                     mLogTimerHandler.postDelayed(this, TIMER_INTERVAL);
                 }
