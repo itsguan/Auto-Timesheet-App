@@ -17,7 +17,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.mad.assignment.constants.GlobalGoogleApiClient;
 
 /**
  * Created by Guan on 6/10/2016.

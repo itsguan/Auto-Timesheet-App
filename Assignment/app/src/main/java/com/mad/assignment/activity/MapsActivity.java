@@ -45,7 +45,6 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mad.assignment.constants.Constants;
-import com.mad.assignment.constants.GlobalGoogleApiClient;
 import com.mad.assignment.services.GeofenceTransitionService;
 import com.mad.assignment.R;
 import com.mad.assignment.model.WorkSite;
@@ -73,8 +72,7 @@ public class MapsActivity extends FragmentActivity implements
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
-        googleApiClient = GlobalGoogleApiClient.getSingletonGoogleApiClient();
+        initialiseGoogleApiClient();
 
         textLat = (TextView) findViewById(R.id.lat);
         textLong = (TextView) findViewById(R.id.lon);
@@ -114,6 +112,14 @@ public class MapsActivity extends FragmentActivity implements
                 }
             }
         });
+    }
+
+    private void initialiseGoogleApiClient() {
+        if (googleApiClient == null) {
+            googleApiClient = new GoogleApiClient.Builder(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
     }
 
     @Override
