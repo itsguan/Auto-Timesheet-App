@@ -59,9 +59,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        LocationListener,
         OnMapReadyCallback,
         GoogleMap.OnMapClickListener,
         GoogleMap.OnMarkerClickListener,
@@ -81,8 +78,6 @@ public class MapsActivity extends FragmentActivity implements
 
         textLat = (TextView) findViewById(R.id.lat);
         textLong = (TextView) findViewById(R.id.lon);
-
-        createGoogleApi();
 
         final EditText searchBar = (EditText) findViewById(R.id.maps_activity_search_et);
         Button searchBtn = (Button) findViewById(R.id.maps_activity_search_btn);
@@ -221,13 +216,25 @@ public class MapsActivity extends FragmentActivity implements
         mMap.setOnMarkerClickListener(this);
     }
 
+    @Override
+    public void onMapClick(LatLng latLng) {
+        Log.d(TAG, "onMapClick(" + latLng + ")");
+        markerForGeofence(latLng, GEOFENCE_REQ_ID);
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        Log.d(TAG, "onMarkerClickListener: " + marker.getPosition());
+        return false;
+    }
+
     // Geofencing stuff:
 
     private static final String TAG = MapsActivity.class.getSimpleName();
 
     private GoogleMap map;
     private GoogleApiClient googleApiClient;
-    private Location lastLocation;
+
 
     private TextView textLat, textLong;
 
@@ -242,166 +249,13 @@ public class MapsActivity extends FragmentActivity implements
         return intent;
     }
 
-    // Create GoogleApiClient instance
-    private void createGoogleApi() {
-        Log.d(TAG, "createGoogleApi()");
-        if (googleApiClient == null) {
-            googleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-        }
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        // Call GoogleApiClient connection when starting the Activity
-        googleApiClient.connect();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        // Disconnect GoogleApiClient when stopping Activity
-        googleApiClient.disconnect();
-    }
-
-    private final int REQ_PERMISSION = 999;
-
-    // Check for permission to access Location
-    private boolean checkPermission() {
-        Log.d(TAG, "checkPermission()");
-        // Ask for permission if it wasn't granted yet
-        return (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED);
-    }
-
-    // Asks for permission
-    private void askPermission() {
-        Log.d(TAG, "askPermission()");
-        ActivityCompat.requestPermissions(
-                this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                REQ_PERMISSION
-        );
-    }
-
-    // Verify user's response of the permission requested
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        Log.d(TAG, "onRequestPermissionsResult()");
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case REQ_PERMISSION: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted
-                    getLastKnownLocation();
-
-                } else {
-                    // Permission denied
-                    permissionsDenied();
-                }
-                break;
-            }
-        }
-    }
-
-    // App cannot work without the permissions
-    private void permissionsDenied() {
-        Log.w(TAG, "permissionsDenied()");
-        // TODO close app and warn user
-    }
-
-
-    @Override
-    public void onMapClick(LatLng latLng) {
-        Log.d(TAG, "onMapClick(" + latLng + ")");
-        markerForGeofence(latLng, GEOFENCE_REQ_ID);
-    }
-
-    @Override
-    public boolean onMarkerClick(Marker marker) {
-        Log.d(TAG, "onMarkerClickListener: " + marker.getPosition());
-        return false;
-    }
-
-    private LocationRequest locationRequest;
-    // Defined in mili seconds.
-    // This number in extremely low, and should be used only for debug
-    private final int UPDATE_INTERVAL = 1000;
-    private final int FASTEST_INTERVAL = 900;
-
-    // Start location Updates
-    private void startLocationUpdates() {
-        Log.i(TAG, "startLocationUpdates()");
-        locationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(UPDATE_INTERVAL)
-                .setFastestInterval(FASTEST_INTERVAL);
-
-        if (checkPermission())
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        Log.d(TAG, "onLocationChanged [" + location + "]");
-        lastLocation = location;
-        writeActualLocation(location);
-    }
-
-    // GoogleApiClient.ConnectionCallbacks connected
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Log.i(TAG, "onConnected()");
-        getLastKnownLocation();
-        //recoverGeofenceMarker();
-    }
-
-    // GoogleApiClient.ConnectionCallbacks suspended
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.w(TAG, "onConnectionSuspended()");
-    }
-
-    // GoogleApiClient.OnConnectionFailedListener fail
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.w(TAG, "onConnectionFailed()");
-    }
-
-    // Get last known location
-    private void getLastKnownLocation() {
-        Log.d(TAG, "getLastKnownLocation()");
-        if (checkPermission()) {
-            lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-            if (lastLocation != null) {
-                Log.i(TAG, "LasKnown location. " +
-                        "Long: " + lastLocation.getLongitude() +
-                        " | Lat: " + lastLocation.getLatitude());
-                writeLastLocation();
-                startLocationUpdates();
-            } else {
-                Log.w(TAG, "No location retrieved yet");
-                startLocationUpdates();
-            }
-        } else askPermission();
-    }
 
     private void writeActualLocation(Location location) {
         textLat.setText("Lat: " + location.getLatitude());
         textLong.setText("Long: " + location.getLongitude());
 
         markerLocation(new LatLng(location.getLatitude(), location.getLongitude()));
-    }
-
-    private void writeLastLocation() {
-        writeActualLocation(lastLocation);
     }
 
     private Marker locationMarker;
@@ -502,6 +356,15 @@ public class MapsActivity extends FragmentActivity implements
                     request,
                     createGeofencePendingIntent()
             ).setResultCallback(this);
+    }
+
+    private boolean checkPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        }
+        // Return false if permission was somehow revoked after accepting in MainActivity.
+        return false;
     }
 
     @Override
