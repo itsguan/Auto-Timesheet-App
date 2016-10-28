@@ -9,17 +9,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingEvent;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mad.assignment.constants.Constants;
@@ -45,7 +42,8 @@ public class GeofenceTransitionService extends IntentService {
      * Controls the timer to record the hours worked.
      */
     private Handler mLogTimerHandler = new Handler();
-    private static double mHoursWorked = 0;
+    private static double sHoursWorked = 0;
+    private static boolean sRunnableTimerState = false;
 
     public GeofenceTransitionService() {
         super(TAG);
@@ -162,28 +160,35 @@ public class GeofenceTransitionService extends IntentService {
      */
     private void handleTimerForHoursWorked(final WorkSite activeSite, final boolean activeState) {
 
-        // If the user is at a work site, start a timer which stores the hours worked as field.
-        mLogTimerHandler.postDelayed(new Runnable() {
+        // Static boolean to actually stop the runnables once they run.
+        sRunnableTimerState = activeState;
+
+        // Simply increases hours worked every 'TIMER_INTERVAL'.
+        Runnable logHoursRunnable = new Runnable() {
             @Override
             public void run() {
-                if (activeState) {
-                    mHoursWorked++;
-                    Log.d(TAG, Double.toString(mHoursWorked));
-                    Log.d(TAG, new SimpleDateFormat("dd/MM/yy").format(new Date()));
+                if (sRunnableTimerState) {
+                    sHoursWorked++;
+                    //Log.d(TAG, Double.toString(sHoursWorked));
+                    //Log.d(TAG, new SimpleDateFormat("dd/MM/yy").format(new Date()));
                     mLogTimerHandler.postDelayed(this, TIMER_INTERVAL);
-                } else {
-                    Log.d(TAG, "Start of else: " + Double.toString(mHoursWorked));
-                    // Stop the timer by removing all runnables in the handler.
-                    mLogTimerHandler.removeCallbacks(null);
-
-                    // Once the user leaves the site, update the hours worked.
-                    saveWorkSiteToDatabase(activeSite, mHoursWorked);
-
-                    // Reset hours worked.
-                    mHoursWorked = 0;
                 }
             }
-        }, TIMER_INTERVAL);
+        };
+
+        if (sRunnableTimerState) {
+            // If the user is at a work site, start a timer which stores the hours worked as field.
+            logHoursRunnable.run();
+        } else {
+            // Stop the timer by removing all runnables in the handler.
+            mLogTimerHandler.removeCallbacks(null);
+
+            // Once the user leaves the site, update the hours worked.
+            saveWorkSiteToDatabase(activeSite, sHoursWorked);
+
+            // Reset hours worked.
+            sHoursWorked = 0;
+        }
     }
 
     /**
