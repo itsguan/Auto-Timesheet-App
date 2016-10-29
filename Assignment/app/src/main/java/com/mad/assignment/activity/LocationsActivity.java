@@ -1,6 +1,8 @@
 package com.mad.assignment.activity;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -83,6 +85,31 @@ public class LocationsActivity extends AppCompatActivity {
                 android.R.layout.simple_list_item_1, android.R.id.text1, addresses);
 
         mListView.setAdapter(mAdapter);
+    }
+
+    private void createConfirmationWindow() {
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(LocationsActivity.this);
+        builder1.setMessage("Write your message here.");
+        builder1.setCancelable(true);
+
+        builder1.setPositiveButton(
+                "Yes",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+
+        builder1.setNegativeButton(
+                "No",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
     }
 
     /**

@@ -332,6 +332,12 @@ public class MapsActivity extends FragmentActivity implements
             Geofence geofence = createGeofence(latLng, GEOFENCE_RADIUS, geoID);
             GeofencingRequest geofenceRequest = createGeofenceRequest(geofence);
             addGeofence(geofenceRequest);
+
+            List<Geofence> geofences = geofenceRequest.getGeofences();
+
+            for (Geofence geofence1 : geofences) {
+                Log.d(TAG, "Geofences: " + geofence1.toString());
+            }
         } else {
             Log.e(TAG, "Geofence marker is null");
         }
@@ -347,7 +353,7 @@ public class MapsActivity extends FragmentActivity implements
         return new Geofence.Builder()
                 .setRequestId(geoID)
                 .setCircularRegion(latLng.latitude, latLng.longitude, radius)
-                .setExpirationDuration(GEO_DURATION)
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER
                         | Geofence.GEOFENCE_TRANSITION_EXIT)
                 .build();
