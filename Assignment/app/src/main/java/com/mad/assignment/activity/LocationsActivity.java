@@ -51,20 +51,18 @@ public class LocationsActivity extends AppCompatActivity {
 
         refreshAdapter();
 
+        // Clicking a name in the ListView will remove that entry from the shared prefs.
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                // Retrieve the work site to be deleted from the shared prefs.
                 ArrayList<WorkSite> activeWorkSites = getWorkSitesFromPrefs();
-                activeWorkSites.remove(position);
+                WorkSite toBeDeletedWorkSite = activeWorkSites.get(position);
 
-                Gson gson = new Gson();
-                String jsonWorkSites = gson.toJson(activeWorkSites);
-                SharedPreferences.Editor editor =
-                        getSharedPreferences(Constants.LOCATION_PREF, MODE_PRIVATE).edit();
-
-                editor.putString(Constants.JSON_TAG, jsonWorkSites);
-                editor.commit();
-                refreshAdapter();
+                // Create a pop-up asking for confirmation.
+                createConfirmationWindow(toBeDeletedWorkSite.getAddress(), activeWorkSites,
+                        position);
             }
         });
     }
@@ -105,20 +103,43 @@ public class LocationsActivity extends AppCompatActivity {
         mListView.setAdapter(mAdapter);
     }
 
-    private void createConfirmationWindow() {
-        AlertDialog.Builder builder1 = new AlertDialog.Builder(LocationsActivity.this);
-        builder1.setMessage("Write your message here.");
-        builder1.setCancelable(true);
+    /**
+     * Create a confirmation pop-up to ask user if they want to delete a location.
+     */
+    private void createConfirmationWindow(String address, final ArrayList<WorkSite> activeWorkSites,
+                                          final int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder1.setPositiveButton(
+        builder.setMessage("Are you sure you want to delete " + address + "?");
+        builder.setCancelable(true);
+
+        builder.setPositiveButton(
                 "Yes",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+
+                        // Remove the entry from the given ArrayList.
+                        activeWorkSites.remove(position);
+
+                        // Retrieve Json WorkSite list and open connection to shared prefs.
+                        Gson gson = new Gson();
+                        String jsonWorkSites = gson.toJson(activeWorkSites);
+                        SharedPreferences.Editor editor =
+                                getSharedPreferences(Constants.LOCATION_PREF, MODE_PRIVATE).edit();
+
+                        // Overwrite the existing Json WorkSite list with the updated list.
+                        editor.putString(Constants.JSON_TAG, jsonWorkSites);
+                        editor.apply();
+
+                        // Update the list view by refreshing the adapter.
+                        refreshAdapter();
+
+                        // Close the pop-up.
                         dialog.cancel();
                     }
                 });
 
-        builder1.setNegativeButton(
+        builder.setNegativeButton(
                 "No",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -126,8 +147,8 @@ public class LocationsActivity extends AppCompatActivity {
                     }
                 });
 
-        AlertDialog alert11 = builder1.create();
-        alert11.show();
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     /**
@@ -153,8 +174,7 @@ public class LocationsActivity extends AppCompatActivity {
     }
 
     /**
-     * Retrieves the addresses of the active work sites stored in the sharedPrefs
-     * as a list of Strings.
+     * Returns a list of addresses of the work sites stored in the shared prefs.
      */
     private ArrayList<String> getAddressesFromPrefs() {
 
@@ -181,7 +201,7 @@ public class LocationsActivity extends AppCompatActivity {
                 getSharedPreferences(Constants.LOCATION_PREF, MODE_PRIVATE).edit();
 
         editor.putString(Constants.JSON_TAG, jsonWorkSites);
-        editor.commit();
+        editor.apply();
         refreshAdapter();
     }
 }

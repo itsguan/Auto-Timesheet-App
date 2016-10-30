@@ -11,16 +11,12 @@ public class WorkSite extends SugarRecord {
 
     private static final double MAX_HOURS_WORKED = 24;
 
-    // These are the only fields needed by Gson.
     private String address;
+    private String dateWorked;
     private double latitude;
     private double longitude;
+    private double hoursWorked;
     private boolean currentlyWorking = false;
-
-    // These fields are invisible to Gson, but is used by SugarORM.
-    private transient String dateWorked;
-    private transient double hoursWorked;
-
 
     public WorkSite() {
     }
