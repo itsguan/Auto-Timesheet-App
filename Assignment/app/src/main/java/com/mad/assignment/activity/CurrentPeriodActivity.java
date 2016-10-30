@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.mad.assignment.R;
 import com.mad.assignment.adapters.WorkLogAdapter;
 import com.mad.assignment.model.WorkSite;
@@ -46,6 +47,13 @@ public class CurrentPeriodActivity extends AppCompatActivity {
 
     private void refreshList() {
         mWorkLogList = WorkSite.listAll(WorkSite.class);
+/*
+        WorkSite tempWorkSite = new WorkSite("Test", new LatLng(100, 100));
+
+        for (int i = 0; i < 20; i++) {
+            mWorkLogList.add(tempWorkSite);
+        }
+*/
         Log.d(TAG, Integer.toString(mWorkLogList.size()));
         mWorkLogAdapter = new WorkLogAdapter(this, mWorkLogList);
         mRecyclerView.setAdapter(mWorkLogAdapter);
