@@ -52,7 +52,9 @@ import com.mad.assignment.model.WorkSite;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 public class MapsActivity extends FragmentActivity implements
         OnMapReadyCallback,
@@ -153,7 +155,7 @@ public class MapsActivity extends FragmentActivity implements
             workSites = gson.fromJson(jsonSavedWorkSites, type);
         }
 
-        // Append new work site to existing list of sites.
+        // Create a work site object using the new address.
         LatLng latLng = findLatLngFromAddress(location);
         WorkSite workSite = new WorkSite(location, latLng);
 
@@ -161,15 +163,25 @@ public class MapsActivity extends FragmentActivity implements
         if (workSites.size() == 0) {
             workSites.add(workSite);
         } else {
-            // Adds the new work site to the shared prefs only if it doesn't exist already.
+
+            // Controls whether a new entry is needed if the same address is already added.
+            boolean existingWorkSiteFound = false;
+
+            // Checks if the new address is already saved.
             for (WorkSite existingWorkSite : workSites) {
-                if (!existingWorkSite.getAddress().equals(workSite.getAddress())) {
-                    workSites.add(workSite);
-                } else {
-                    Toast.makeText(this, "This address has already been saved.",
-                            Toast.LENGTH_LONG).show();
-                    return false;
+                if (existingWorkSite.getAddress().equals(workSite.getAddress())) {
+                    existingWorkSiteFound = true;
                 }
+            }
+
+            // Display a toast if the address was already saved or save as a new address.
+            // Prevents concurrent modification exception by using the extra boolean.
+            if (existingWorkSiteFound) {
+                Toast.makeText(this, "This address has already been saved.",
+                        Toast.LENGTH_LONG).show();
+                return false;
+            } else {
+                workSites.add(workSite);
             }
         }
 

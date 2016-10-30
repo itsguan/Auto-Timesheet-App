@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -49,6 +50,23 @@ public class LocationsActivity extends AppCompatActivity {
         mListView = (ListView) findViewById(R.id.locations_activity_list_view);
 
         refreshAdapter();
+
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ArrayList<WorkSite> activeWorkSites = getWorkSitesFromPrefs();
+                activeWorkSites.remove(position);
+
+                Gson gson = new Gson();
+                String jsonWorkSites = gson.toJson(activeWorkSites);
+                SharedPreferences.Editor editor =
+                        getSharedPreferences(Constants.LOCATION_PREF, MODE_PRIVATE).edit();
+
+                editor.putString(Constants.JSON_TAG, jsonWorkSites);
+                editor.commit();
+                refreshAdapter();
+            }
+        });
     }
 
     @Override
@@ -113,27 +131,43 @@ public class LocationsActivity extends AppCompatActivity {
     }
 
     /**
-     * Retrieves the active work sites stored in the sharedPrefs as a Json string.
+     * Returns an ArrayList of WorkSite objects stored in the shared prefs.
      */
-    private ArrayList<String> getAddressesFromPrefs() {
+    private ArrayList<WorkSite> getWorkSitesFromPrefs() {
+
+        // Retrieve the Json String containing a list of WorkSite objects.
         SharedPreferences sharedPreferences =
                 getSharedPreferences(Constants.LOCATION_PREF, Context.MODE_PRIVATE);
         String jsonWorkSites = sharedPreferences.getString(Constants.JSON_TAG, "");
         Log.d("JSONTAG", "jsonWorkSites = " + jsonWorkSites);
         Gson gson = new Gson();
         Type type = new TypeToken<ArrayList<WorkSite>>() {}.getType();
-        ArrayList<String> workSiteAddresses = new ArrayList<String>();
 
         // Only convert back to a list if the Json string is not empty.
         if (jsonWorkSites != null && jsonWorkSites != "") {
-            ArrayList<WorkSite> workSites = gson.fromJson(jsonWorkSites, type);
-
-            for (WorkSite workSite : workSites) {
-                workSiteAddresses.add(workSite.getAddress());
-            }
+            return gson.fromJson(jsonWorkSites, type);
         }
 
-        return workSiteAddresses;
+        // Simple return a new ArrayList if there is nothing in the Json String.
+        return new ArrayList<>();
+    }
+
+    /**
+     * Retrieves the addresses of the active work sites stored in the sharedPrefs
+     * as a list of Strings.
+     */
+    private ArrayList<String> getAddressesFromPrefs() {
+
+        // Retrieve the entire list of active work sites first from the shared prefs.
+        ArrayList<WorkSite> activeWorkSites = getWorkSitesFromPrefs();
+        ArrayList<String> activeWorkSiteAddresses = new ArrayList<>();
+
+        // Retrieve the addresses and store them in a list of Strings.
+        for (WorkSite workSite : activeWorkSites) {
+            activeWorkSiteAddresses.add(workSite.getAddress());
+        }
+
+        return activeWorkSiteAddresses;
     }
 
     /**
