@@ -225,18 +225,31 @@ public class GeofenceTransitionService extends IntentService {
             // Check if the date AND address match with the existing work log.
             if (existingWorkSite.getAddress().equals(recentlyLeftWorkSite.getAddress())) {
                 if (existingWorkSite.getDateWorked().equals(currentDate)) {
+                    // Increase hours worked in the existing entry as both date and location
+                    // are the same.
                     existingWorkSite.incrementHoursWorked(hoursWorked);
                     existingWorkSite.save();
+                } else {
+                    // If the location is the same BUT the date is not the same,
+                    // save as a new entry.
+                    saveNewWorkSiteToDB(recentlyLeftWorkSite, hoursWorked, currentDate);
                 }
             }
 
         } else {
-            // Must add new entry
-            WorkSite firstWorkSite = recentlyLeftWorkSite;
-            firstWorkSite.setHoursWorked(hoursWorked);
-            firstWorkSite.setDateWorked(currentDate);
-            firstWorkSite.save();
+            // The DB is completely new, so add this as the first entry.
+            saveNewWorkSiteToDB(recentlyLeftWorkSite, hoursWorked, currentDate);
         }
+    }
+
+    /**
+     * Saves a work entry as a new row in the SugarORM DB.
+     */
+    private void saveNewWorkSiteToDB(WorkSite recentlyLeftWorkSite, double hoursWorked,
+                                     String currentDate) {
+        recentlyLeftWorkSite.setHoursWorked(hoursWorked);
+        recentlyLeftWorkSite.setDateWorked(currentDate);
+        recentlyLeftWorkSite.save();
     }
 
 
@@ -245,7 +258,7 @@ public class GeofenceTransitionService extends IntentService {
      */
     private int findIndexOfWorkSite(List<WorkSite> sites, WorkSite activeSite) {
 
-        for (int i = 0; i < sites.size(); i++) {
+        for (int i = sites.size() - 1; i > -1 ; i--) {
 
             if (sites.get(i).getAddress().equals(activeSite.getAddress())) {
                 return i;
