@@ -17,6 +17,7 @@ public class WorkSite extends SugarRecord {
     private double longitude;
     private double hoursWorked;
     private boolean currentlyWorking = false;
+    private boolean currentPeriod = true;
 
     public WorkSite() {
     }
@@ -61,5 +62,14 @@ public class WorkSite extends SugarRecord {
 
     public double getHoursWorked() {
         return hoursWorked;
+    }
+
+    public boolean isCurrentPeriod() {
+        return currentPeriod;
+    }
+
+    public void setCurrentPeriod(boolean currentPeriod) {
+
+        this.currentPeriod = currentPeriod;
     }
 }
