@@ -80,10 +80,7 @@ public class CurrentPeriodActivity extends AppCompatActivity {
     }
 
     private void refreshList() {
-        //mWorkLogList = WorkSite.listAll(WorkSite.class);
         mWorkLogList.clear();
-
-
 
         for (int i = 0; i < 5; i++) {
             //mWorkLogList.add(tempWorkSite);
@@ -105,22 +102,4 @@ public class CurrentPeriodActivity extends AppCompatActivity {
 
         //mWorkLogAdapter.notifyDataSetChanged();
     }
-
-    /**
-     * Refreshes the listView's adapter by retrieving the Json string from sharedPrefs.
-     */
-    /*
-    private void refreshAdapter() {
-        List<WorkSite> workSites = WorkSite.listAll(WorkSite.class);
-        List<String> addresses = new ArrayList<>();
-
-        for (WorkSite workSite : workSites) {
-            addresses.add(workSite.getAddress());
-        }
-
-        mWorkLogAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, android.R.id.text1, addresses);
-
-        mRecyclerView.setAdapter(mWorkLogAdapter);
-    }*/
 }

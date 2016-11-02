@@ -67,6 +67,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button viewPeriodPeriodBtn =
+                (Button) findViewById(R.id.main_activity_view_previous_period_btn);
+        viewPeriodPeriodBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, PreviousPeriodActivity.class);
+                startActivity(intent);
+            }
+        });
+
         mActiveWorkSite = (TextView) findViewById(R.id.main_activity_worksite_name);
 
         firstTimeCheckPermissions();
