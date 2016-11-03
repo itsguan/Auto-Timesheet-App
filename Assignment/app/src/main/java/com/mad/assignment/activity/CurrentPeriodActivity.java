@@ -27,7 +27,7 @@ public class CurrentPeriodActivity extends AppCompatActivity {
     private Button mSaveToPrevPeriodBtn;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_period);
 
@@ -42,32 +42,7 @@ public class CurrentPeriodActivity extends AppCompatActivity {
         mSaveToPrevPeriodBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<WorkSite> allWorkSites = WorkSite.listAll(WorkSite.class);
-                String toastMessage = "";
-
-                // Set currentPeriod to false for ALL entries as new entries are auto true.
-                for (WorkSite toBePrevWorkSite : allWorkSites) {
-                    toBePrevWorkSite.setCurrentPeriod(false);
-                    toBePrevWorkSite.save();
-                }
-
-                // Select an appropriate toast message.
-                switch (mWorkLogList.size()) {
-                    case 0:
-                        toastMessage = getString(R.string.current_period_activity_no_entries_toast_msg);
-                        break;
-                    default:
-                        toastMessage = getString(R.string.current_period_activity_entries_saved_toast_msg);
-                        break;
-                }
-
-                // Provide visual feedback in the form of a toast.
-                Toast toast = Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG);
-                TextView toastView = (TextView) toast.getView().findViewById(android.R.id.message);
-                if( toastView != null) toastView.setGravity(Gravity.CENTER);
-                toast.show();
-
-                refreshList();
+                saveToPreviousPeriod();
             }
         });
 
@@ -102,6 +77,38 @@ public class CurrentPeriodActivity extends AppCompatActivity {
         // Reattach the updated list to the custom list adapter.
         mWorkLogAdapter = new WorkLogAdapter(this, mWorkLogList);
         mRecyclerView.setAdapter(mWorkLogAdapter);
+    }
+
+    /**
+     * Saves the current entries to the previous period entries.
+     */
+    private void saveToPreviousPeriod() {
+        List<WorkSite> allWorkSites = WorkSite.listAll(WorkSite.class);
+        String toastMessage = "";
+
+        // Set currentPeriod to false for ALL entries as new entries are auto true.
+        for (WorkSite toBePrevWorkSite : allWorkSites) {
+            toBePrevWorkSite.setCurrentPeriod(false);
+            toBePrevWorkSite.save();
+        }
+
+        // Select an appropriate toast message.
+        switch (mWorkLogList.size()) {
+            case 0:
+                toastMessage = getString(R.string.current_period_activity_no_entries_toast_msg);
+                break;
+            default:
+                toastMessage = getString(R.string.current_period_activity_entries_saved_toast_msg);
+                break;
+        }
+
+        // Provide visual feedback in the form of a toast.
+        Toast toast = Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG);
+        TextView toastView = (TextView) toast.getView().findViewById(android.R.id.message);
+        if( toastView != null) toastView.setGravity(Gravity.CENTER);
+        toast.show();
+
+        refreshList();
     }
 
     /**

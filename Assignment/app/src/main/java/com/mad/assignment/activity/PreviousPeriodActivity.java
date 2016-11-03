@@ -39,18 +39,25 @@ public class PreviousPeriodActivity extends AppCompatActivity {
         refreshList();
     }
 
+    /**
+     * Updates the adapter and its attached list by retrieving a new updated list.
+     */
     private void refreshList() {
+
+        // Clear the entire adapter list in preparation for a refresh.
         mWorkLogList.clear();
 
+        // Retrieve the updated list of ALL work entries with SugarORM.
         List<WorkSite> allWorkSites = WorkSite.listAll(WorkSite.class);
 
+        // Add the entries that are NOT in the currentPeriod to the visible list.
         for (WorkSite previousWorkSite : allWorkSites) {
             if (!previousWorkSite.isCurrentPeriod()) {
                 mWorkLogList.add(previousWorkSite);
             }
         }
 
-        Log.d(TAG, Integer.toString(mWorkLogList.size()));
+        // Reattach the updated list to the custom list adapter.
         mWorkLogAdapter = new WorkLogAdapter(this, mWorkLogList);
         mRecyclerView.setAdapter(mWorkLogAdapter);
     }
