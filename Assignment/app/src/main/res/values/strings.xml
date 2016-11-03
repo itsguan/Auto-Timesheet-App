@@ -9,4 +9,6 @@
     <string name="main_activity_not_at_worksite">Not at worksite</string>
     <string name="hours_worked_placeholder">0</string>
     <string name="main_activity_hours_worked">Hours worked:</string>
+    <string name="current_period_activity_no_entries_toast_msg">There are no entries in the current period to save.</string>
+    <string name="current_period_activity_entries_saved_toast_msg">All entries have been saved to the previous period. \n You can check the previous period in the main menu.</string>
 </resources>

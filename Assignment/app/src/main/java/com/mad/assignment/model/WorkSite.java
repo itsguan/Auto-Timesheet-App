@@ -19,13 +19,28 @@ public class WorkSite extends SugarRecord {
     private boolean currentlyWorking = false;
     private boolean currentPeriod = true;
 
+    /**
+     * Constructor required by SugarORM
+     */
     public WorkSite() {
     }
 
+    /**
+     * Creates a WorkSite using only an address and a LatLng. Used for geofences.
+     */
     public WorkSite(String address, LatLng latLng) {
         this.address = address;
         latitude = latLng.latitude;
         longitude = latLng.longitude;
+    }
+
+    /**
+     * Creates a WorkSite that contains date and hours worked. Used for databases.
+     */
+    public WorkSite (String address, String dateWorked, double hoursWorked) {
+        this.address = address;
+        this.dateWorked = dateWorked;
+        this.hoursWorked = hoursWorked;
     }
 
     public String getAddress() {

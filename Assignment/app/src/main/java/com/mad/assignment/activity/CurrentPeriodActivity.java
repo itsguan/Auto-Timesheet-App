@@ -4,11 +4,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.mad.assignment.R;
 import com.mad.assignment.adapters.WorkLogAdapter;
 import com.mad.assignment.model.WorkSite;
@@ -42,15 +43,7 @@ public class CurrentPeriodActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 List<WorkSite> allWorkSites = WorkSite.listAll(WorkSite.class);
-
-                String addresses = "";
-                for (WorkSite workSite : allWorkSites) {
-                    addresses += workSite.getAddress() + ", ";
-                }
-
-                Log.d(TAG, "Before: " +addresses);
-
-                List<WorkSite> toBePrevWorkSites = new ArrayList<WorkSite>();
+                String toastMessage = "";
 
                 // Set currentPeriod to false for ALL entries as new entries are auto true.
                 for (WorkSite toBePrevWorkSite : allWorkSites) {
@@ -58,48 +51,74 @@ public class CurrentPeriodActivity extends AppCompatActivity {
                     toBePrevWorkSite.save();
                 }
 
-                allWorkSites = WorkSite.listAll(WorkSite.class);
-
-                String addresses2 = "";
-                for (WorkSite workSite : allWorkSites) {
-                    addresses2 += workSite.getAddress() + ", ";
+                // Select an appropriate toast message.
+                switch (mWorkLogList.size()) {
+                    case 0:
+                        toastMessage = getString(R.string.current_period_activity_no_entries_toast_msg);
+                        break;
+                    default:
+                        toastMessage = getString(R.string.current_period_activity_entries_saved_toast_msg);
+                        break;
                 }
 
-                Log.d(TAG, "After: " +addresses2);
+                // Provide visual feedback in the form of a toast.
+                Toast toast = Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG);
+                TextView toastView = (TextView) toast.getView().findViewById(android.R.id.message);
+                if( toastView != null) toastView.setGravity(Gravity.CENTER);
+                toast.show();
 
                 refreshList();
             }
         });
+
+        // Create some generic entries for demonstration purposes.
+        createFirstEntries();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        //refreshAdapter();
         refreshList();
     }
 
+    /**
+     * Updates the adapter and its attached list by retrieving a new updated list.
+     */
     private void refreshList() {
+
+        // Clear the entire adapter list in preparation for a refresh.
         mWorkLogList.clear();
 
-        for (int i = 0; i < 5; i++) {
-            //mWorkLogList.add(tempWorkSite);
-            WorkSite tempWorkSite = new WorkSite("Test" + i, new LatLng(100, 100));
-            tempWorkSite.save();
-        }
-
+        // Retrieve the updated list of ALL work entries with SugarORM.
         List<WorkSite> allWorkSites = WorkSite.listAll(WorkSite.class);
 
+        // Add the entries that are in the currentPeriod to the visible list.
         for (WorkSite currentWorkSite : allWorkSites) {
             if (currentWorkSite.isCurrentPeriod()) {
                 mWorkLogList.add(currentWorkSite);
             }
         }
 
-        Log.d(TAG, Integer.toString(mWorkLogList.size()));
+        // Reattach the updated list to the custom list adapter.
         mWorkLogAdapter = new WorkLogAdapter(this, mWorkLogList);
         mRecyclerView.setAdapter(mWorkLogAdapter);
+    }
 
-        //mWorkLogAdapter.notifyDataSetChanged();
+    /**
+     * Sets up three generic work entries if the DB is new.
+     */
+    private void createFirstEntries() {
+        List<WorkSite> allWorkSites = WorkSite.listAll(WorkSite.class);
+
+        if (allWorkSites.size() == 0) {
+            WorkSite genericWorkSite1 = new WorkSite("15 Broadway Ultimo", "3/11/16", 7);
+            genericWorkSite1.save();
+
+            WorkSite genericWorkSite2 = new WorkSite("1 Harbour St", "4/11/16", 6);
+            genericWorkSite2.save();
+
+            WorkSite genericWorkSite3 = new WorkSite("110 Burwood Rd", "5/11/16", 7);
+            genericWorkSite3.save();
+        }
     }
 }
