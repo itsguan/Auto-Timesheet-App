@@ -27,7 +27,7 @@ public class CurrentPeriodActivity extends AppCompatActivity {
     private Button mSaveToPrevPeriodBtn;
 
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_period);
 

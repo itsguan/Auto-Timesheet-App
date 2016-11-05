@@ -39,8 +39,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView mHoursWorked;
     private BroadcastReceiver mHoursWorkedReceiver;
     private BroadcastReceiver mActiveWorkAddressReceiver;
-    private IntentFilter mHoursWorkedFilter;
-    private IntentFilter mActiveWorkAddressFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        setCurrentlyWorkingToActiveSite();
+        //setCurrentlyWorkingToActiveSite();
 
         // Register the two broadcast receivers.
         LocalBroadcastManager.getInstance(this).registerReceiver(mHoursWorkedReceiver,
@@ -78,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        super.onDestroy();
+        super.onPause();
 
         // Unregister the two broadcast receivers when activity is paused.
         if (mHoursWorkedReceiver != null) {
