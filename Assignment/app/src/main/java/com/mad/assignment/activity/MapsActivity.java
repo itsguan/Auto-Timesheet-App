@@ -256,8 +256,7 @@ public class MapsActivity extends FragmentActivity implements
             return;
         }
         mMap.setMyLocationEnabled(true);
-
-        mMap.setOnMapClickListener(this);
+        //mMap.setOnMapClickListener(this);
         mMap.setOnMarkerClickListener(this);
     }
 

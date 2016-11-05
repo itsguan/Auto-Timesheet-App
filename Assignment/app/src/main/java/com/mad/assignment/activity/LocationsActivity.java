@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -49,7 +50,7 @@ public class LocationsActivity extends AppCompatActivity {
 
         mListView = (ListView) findViewById(R.id.locations_activity_list_view);
 
-        refreshAdapter();
+        refreshList();
 
         // Clicking a name in the ListView will remove that entry from the shared prefs.
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -88,14 +89,14 @@ public class LocationsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        refreshAdapter();
+        refreshList();
         Log.d("tag", "resumed");
     }
 
     /**
      * Refreshes the listView's adapter by retrieving the Json string from sharedPrefs.
      */
-    private void refreshAdapter() {
+    private void refreshList() {
         ArrayList<String> addresses = getAddressesFromPrefs();
         mAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, addresses);
@@ -106,15 +107,16 @@ public class LocationsActivity extends AppCompatActivity {
     /**
      * Create a confirmation pop-up to ask user if they want to delete a location.
      */
-    private void createConfirmationWindow(String address, final ArrayList<WorkSite> activeWorkSites,
+    private void createConfirmationWindow(final String address, final ArrayList<WorkSite> activeWorkSites,
                                           final int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setMessage("Are you sure you want to delete " + address + "?");
+        builder.setMessage(getString(R.string.locations_activity_popup_confirmation_msg)
+                + address + "?");
         builder.setCancelable(true);
 
         builder.setPositiveButton(
-                "Yes",
+                R.string.locations_activity_popup_yes,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
@@ -132,15 +134,20 @@ public class LocationsActivity extends AppCompatActivity {
                         editor.apply();
 
                         // Update the list view by refreshing the adapter.
-                        refreshAdapter();
+                        refreshList();
 
                         // Close the pop-up.
                         dialog.cancel();
+
+                        // Provide visual feedback of deletion.
+                        Toast.makeText(getApplicationContext(), address +
+                                getString(R.string.locations_activity_toast_feedback_suffix),
+                                Toast.LENGTH_LONG).show();
                     }
                 });
 
         builder.setNegativeButton(
-                "No",
+                R.string.locations_activity_popup_no,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
@@ -202,6 +209,6 @@ public class LocationsActivity extends AppCompatActivity {
 
         editor.putString(Constants.JSON_TAG, jsonWorkSites);
         editor.apply();
-        refreshAdapter();
+        refreshList();
     }
 }

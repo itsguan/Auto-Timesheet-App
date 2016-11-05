@@ -11,4 +11,8 @@
     <string name="main_activity_hours_worked">Hours worked:</string>
     <string name="current_period_activity_no_entries_toast_msg">There are no entries in the current period to save.</string>
     <string name="current_period_activity_entries_saved_toast_msg">All entries have been saved to the previous period. \n You can check the previous period in the main menu.</string>
+    <string name="locations_activity_popup_confirmation_msg">"Are you sure you want to delete "</string>
+    <string name="locations_activity_popup_yes">Yes</string>
+    <string name="locations_activity_popup_no">No</string>
+    <string name="locations_activity_toast_feedback_suffix">" deleted."</string>
 </resources>

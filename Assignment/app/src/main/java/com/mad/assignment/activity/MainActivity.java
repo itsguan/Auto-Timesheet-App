@@ -1,8 +1,10 @@
 package com.mad.assignment.activity;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -11,8 +13,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -30,7 +34,13 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+
     private TextView mActiveWorkSite;
+    private TextView mHoursWorked;
+    private BroadcastReceiver mHoursWorkedReceiver;
+    private BroadcastReceiver mActiveWorkAddressReceiver;
+    private IntentFilter mHoursWorkedFilter;
+    private IntentFilter mActiveWorkAddressFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +57,43 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        setupButtons();
+        setupTextViews();
+        firstTimeCheckPermissions();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setCurrentlyWorkingToActiveSite();
+
+        // Register the two broadcast receivers.
+        LocalBroadcastManager.getInstance(this).registerReceiver(mHoursWorkedReceiver,
+                new IntentFilter(Constants.INTENT_FILTER_HOURS_WORKED));
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mActiveWorkAddressReceiver,
+                new IntentFilter(Constants.INTENT_FILTER_ACTIVE_ADDRESS));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onDestroy();
+
+        // Unregister the two broadcast receivers when activity is paused.
+        if (mHoursWorkedReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mHoursWorkedReceiver);
+        }
+
+        if (mActiveWorkAddressReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mActiveWorkAddressReceiver);
+        }
+    }
+
+    /**
+     * Sets up the buttons shown in the MainActivity and give them clickListeners.
+     */
+    private void setupButtons() {
 
         Button setLocationsBtn = (Button) findViewById(R.id.main_activity_set_locations_btn);
         setLocationsBtn.setOnClickListener(new View.OnClickListener() {
@@ -76,16 +123,35 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        mActiveWorkSite = (TextView) findViewById(R.id.main_activity_worksite_name);
-
-        firstTimeCheckPermissions();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setCurrentlyWorkingToActiveSite();
+    /**
+     * Sets up the TextViews and create broadcast receivers to update their text.
+     */
+    private void setupTextViews() {
+        mActiveWorkSite = (TextView) findViewById(R.id.main_activity_worksite_name);
+        mHoursWorked = (TextView) findViewById(R.id.main_activity_hours_worked_timer);
+
+        mHoursWorkedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                double hoursWorked = intent.getDoubleExtra(Constants.EXTRA_HOURS_WORKED, 0);
+                mHoursWorked.setText(Double.toString(hoursWorked));
+                Log.d("MAIN", ""+hoursWorked);
+            }
+        };
+
+        mActiveWorkAddressReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String activeWorkAddress = intent.getStringExtra(Constants.EXTRA_ACTIVE_ADDRESS);
+                mActiveWorkSite.setText(activeWorkAddress);
+
+                if (activeWorkAddress.equals(getString(R.string.main_activity_not_at_worksite))) {
+                    mHoursWorked.setText("0");
+                }
+            }
+        };
     }
 
     /**

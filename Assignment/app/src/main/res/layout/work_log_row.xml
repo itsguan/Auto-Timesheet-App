@@ -28,6 +28,8 @@
         android:layout_height="wrap_content"
         android:text="6"
         android:layout_weight="1"
+        android:gravity="right"
+        android:paddingRight="16dp"
         android:textSize="20dp"/>
 
 </LinearLayout>

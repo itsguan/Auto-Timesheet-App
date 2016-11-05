@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -89,39 +90,39 @@ public class GeofenceTransitionService extends IntentService {
         // Retrieve triggered geofences.
         List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
-        // Find the work site object with the address of the geofence.
-        for (Geofence geofence : triggeringGeofences) {
-            Log.d(TAG, "GEOID: " + geofence.getRequestId());
-            WorkSite activeWorkSite = findWorkSiteWithAddress(geofence.getRequestId());
+        // Find the work site object with the address of the firstGeofence.
+        Geofence firstGeofence = triggeringGeofences.get(0);
+        Log.d(TAG, "GEOID: " + firstGeofence.getRequestId());
+        WorkSite activeWorkSite = findWorkSiteWithAddress(firstGeofence.getRequestId());
 
-            if (activeWorkSite != null) {
+        if (activeWorkSite != null) {
 
-                handleTimerForHoursWorked(activeWorkSite, activeState);
+            handleTimerForHoursWorked(activeWorkSite, activeState);
 
-                // Save to shared prefs so that MainActivity can see.
-                saveActiveWorkSiteToSharedPrefs(activeWorkSite, activeState);
+            BroadcastLocationWorked(activeWorkSite, activeState);
 
-                // Save to DB so that compiled period can see.
-                //saveActiveWorkSiteToDatabase(activeWorkSite, activeState);
+            // Save to shared prefs so that MainActivity can see.
+            saveActiveWorkSiteToSharedPrefs(activeWorkSite, activeState);
+
+            String geofenceTransitionDetails =
+                    getGeofenceTrasitionDetails(geoFenceTransition, triggeringGeofences);
+
+            // Send notification details as a String
+            sendNotification(geofenceTransitionDetails);
+            Log.d(TAG, "triggered firstGeofence");
 
 
-            } else {
-                Log.d(TAG, "Cannot find a work site on the geofence");
-            }
+        } else {
+            Log.d(TAG, "Cannot find a work site on the firstGeofence");
         }
 
-        String geofenceTransitionDetails =
-                getGeofenceTrasitionDetails(geoFenceTransition, triggeringGeofences);
-
-        // Send notification details as a String
-        sendNotification(geofenceTransitionDetails);
-        Log.d(TAG, "triggered geofence");
     }
 
     /**
      * Saves the work site corresponding to the triggered geofence to the shared prefs.
      */
     private void saveActiveWorkSiteToSharedPrefs(WorkSite activeWorkSite, boolean activeState) {
+
         // Retrieve all active work sites from shared preferences first.
         SharedPreferences sharedPreferences =
                 getSharedPreferences(Constants.LOCATION_PREF, Context.MODE_PRIVATE);
@@ -154,7 +155,6 @@ public class GeofenceTransitionService extends IntentService {
     }
 
 
-
     /**
      * Increment hours worked when in a work site. Records this number when user leaves it.
      */
@@ -171,6 +171,7 @@ public class GeofenceTransitionService extends IntentService {
                     sHoursWorked++;
                     Log.d(TAG, "Hours worked: " + Double.toString(sHoursWorked));
                     //Log.d(TAG, new SimpleDateFormat("dd/MM/yy").format(new Date()));
+                    BroadcastHoursWorked(sHoursWorked);
                     mLogTimerHandler.postDelayed(this, TIMER_INTERVAL);
                 }
             }
@@ -247,18 +248,52 @@ public class GeofenceTransitionService extends IntentService {
      */
     private void saveNewWorkSiteToDB(WorkSite recentlyLeftWorkSite, double hoursWorked,
                                      String currentDate) {
-        recentlyLeftWorkSite.setHoursWorked(hoursWorked);
+
+        // Limit the hours worked to a max of 24 hrs.
+        double limitedHoursWorked = 0;
+
+        if (hoursWorked > 24) {
+            limitedHoursWorked = 24;
+        } else {
+            limitedHoursWorked = hoursWorked;
+        }
+        recentlyLeftWorkSite.setHoursWorked(limitedHoursWorked);
         recentlyLeftWorkSite.setDateWorked(currentDate);
         recentlyLeftWorkSite.save();
     }
 
+    /**
+     * Broadcasts the hours worked when the user enters a work site. Received by MainActivity.
+     */
+    private void BroadcastHoursWorked(double hoursWorked) {
+        Intent intent = new Intent(Constants.INTENT_FILTER_HOURS_WORKED);
+
+        intent.putExtra(Constants.EXTRA_HOURS_WORKED, hoursWorked);
+        LocalBroadcastManager.getInstance(GeofenceTransitionService.this).sendBroadcast(intent);
+    }
+
+    /**
+     * Broadcasts the address when the user enters a work site. Received by MainActivity.
+     */
+    private void BroadcastLocationWorked(WorkSite workSite, boolean activeState) {
+        Intent intent = new Intent(Constants.INTENT_FILTER_ACTIVE_ADDRESS);
+
+        if (activeState) {
+            intent.putExtra(Constants.EXTRA_ACTIVE_ADDRESS, workSite.getAddress());
+        } else {
+            intent.putExtra(Constants.EXTRA_ACTIVE_ADDRESS,
+                    getString(R.string.main_activity_not_at_worksite));
+        }
+
+        LocalBroadcastManager.getInstance(GeofenceTransitionService.this).sendBroadcast(intent);
+    }
 
     /**
      * Finds the index of a work site within a list by matching their address.
      */
     private int findIndexOfWorkSite(List<WorkSite> sites, WorkSite activeSite) {
 
-        for (int i = sites.size() - 1; i > -1 ; i--) {
+        for (int i = sites.size() - 1; i > -1; i--) {
 
             if (sites.get(i).getAddress().equals(activeSite.getAddress())) {
                 return i;
