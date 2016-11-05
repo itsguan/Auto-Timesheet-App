@@ -64,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //setCurrentlyWorkingToActiveSite();
 
         // Register the two broadcast receivers.
         LocalBroadcastManager.getInstance(this).registerReceiver(mHoursWorkedReceiver,
@@ -78,13 +77,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
-        // Unregister the two broadcast receivers when activity is paused.
+        // Unregister the hours worked broadcast receiver when activity is paused.
         if (mHoursWorkedReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mHoursWorkedReceiver);
-        }
-
-        if (mActiveWorkAddressReceiver != null) {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(mActiveWorkAddressReceiver);
         }
     }
 
@@ -153,39 +148,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Sets the TextView to show a work site that the user is in.
-     */
-    private void setCurrentlyWorkingToActiveSite() {
-
-        // Retrieve existing work sites first.
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.LOCATION_PREF, Context.MODE_PRIVATE);
-        ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
-        Gson gson = new Gson();
-        String jsonSavedWorkSites =
-                sharedPreferences.getString(Constants.JSON_TAG, "");
-        Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
-
-        if (!jsonSavedWorkSites.equals("")) {
-            workSites = gson.fromJson(jsonSavedWorkSites, type);
-            boolean activeFound = false;
-
-            // Look through all work sites and find the one that is currently active.
-            for (WorkSite workSite : workSites) {
-                if (workSite.isCurrentlyWorking() == true) {
-                    mActiveWorkSite.setText(workSite.getAddress());
-                    activeFound = true;
-                }
-            }
-
-            // If no active sites were found, set text to not at a worksite.
-            if (!activeFound) {
-                mActiveWorkSite.setText(R.string.main_activity_not_at_worksite);
-            }
-        }
-    }
-
-    /**
      * Checks if user has ACCESS_FINE_LOCATION permission. If they don't, ask for permission.
      * If it is granted, start LocationTrackerService in the callback.
      */
@@ -218,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
 
                 } else {
                     // Permission denied
-                    Toast.makeText(this, "Work Site Location detection will not work",
+                    Toast.makeText(this, R.string.main_activity_perm_not_granted_effects,
                             Toast.LENGTH_SHORT).show();
                 }
                 break;

@@ -60,7 +60,7 @@ public class WorkSite extends SugarRecord {
     }
 
     public void incrementHoursWorked(double increment) {
-        if (hoursWorked < MAX_HOURS_WORKED) {
+        if (hoursWorked + increment < MAX_HOURS_WORKED) {
             hoursWorked += increment;
         } else {
             hoursWorked = MAX_HOURS_WORKED;
