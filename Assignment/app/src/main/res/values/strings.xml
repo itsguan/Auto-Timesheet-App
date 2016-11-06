@@ -35,4 +35,7 @@
     <string name="notification_entering_prefix">"Started work at "</string>
     <string name="notification_exiting_prefix">"Stopped work at "</string>
     <string name="notification_click_instruction">Click to view hours worked here today!</string>
+    <string name="locations_activity_explanation">These are the addresses that you work at.</string>
+    <string name="locations_activity_removal_instruction">Click an address to remove it.</string>
+    <string name="locations_activity_new_address_instruction">Click the circular button to add a new address.</string>
 </resources>
