@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Reset hours worked back to 0 if not in a work site.
                 if (activeWorkAddress.equals(getString(R.string.main_activity_not_at_worksite))) {
-                    mHoursWorked.setText(R.string.hours_worked_placeholder);
+                    mHoursWorked.setText(getString(R.string.hours_worked_placeholder));
                 }
             }
         };
@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
 
                 } else {
                     // Create visual feedback to tell user that app will not work.
-                    Toast.makeText(this, R.string.main_activity_perm_not_granted_effects,
+                    Toast.makeText(this, getString(R.string.main_activity_perm_not_granted_effects),
                             Toast.LENGTH_SHORT).show();
                 }
                 break;

@@ -24,7 +24,6 @@ public class CurrentPeriodActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private WorkLogAdapter mWorkLogAdapter;
     private List<WorkSite> mWorkLogList = new ArrayList<>();
-    private Button mSaveToPrevPeriodBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +37,8 @@ public class CurrentPeriodActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mWorkLogAdapter);
 
         // Setup the save to previous period button.
-        mSaveToPrevPeriodBtn = (Button) findViewById(R.id.current_period_activity_save_to_prev_btn);
-        mSaveToPrevPeriodBtn.setOnClickListener(new View.OnClickListener() {
+        Button saveToPrevPeriodBtn = (Button) findViewById(R.id.current_period_activity_save_to_prev_btn);
+        saveToPrevPeriodBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 saveToPreviousPeriod();
@@ -118,13 +117,16 @@ public class CurrentPeriodActivity extends AppCompatActivity {
         List<WorkSite> allWorkSites = WorkSite.listAll(WorkSite.class);
 
         if (allWorkSites.size() == 0) {
-            WorkSite genericWorkSite1 = new WorkSite("15 Broadway Ultimo", "3/11/16", 7);
+            WorkSite genericWorkSite1 = new WorkSite(getString(R.string.generic_address_1),
+                    getString(R.string.generic_date_1), 7);
             genericWorkSite1.save();
 
-            WorkSite genericWorkSite2 = new WorkSite("1 Harbour St", "4/11/16", 6);
+            WorkSite genericWorkSite2 = new WorkSite(getString(R.string.generic_address_2),
+                    getString(R.string.generic_date_2), 6);
             genericWorkSite2.save();
 
-            WorkSite genericWorkSite3 = new WorkSite("110 Burwood Rd", "5/11/16", 7);
+            WorkSite genericWorkSite3 = new WorkSite(getString(R.string.generic_address_3),
+                    getString(R.string.generic_date_3), 7);
             genericWorkSite3.save();
         }
     }

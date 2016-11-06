@@ -22,4 +22,10 @@
     <string name="main_activity_guide_view_hours">View your hours worked:</string>
     <string name="main_activity_view_current_period_btn_label">View Current Period</string>
     <string name="main_activity_view_previous_periods_btn_label">View Previous Periods</string>
+    <string name="generic_address_1">15 Broadway Ultimo</string>
+    <string name="generic_address_2">1 Harbour St</string>
+    <string name="generic_address_3">110 Burwood Rd</string>
+    <string name="generic_date_1">3/11/16</string>
+    <string name="generic_date_2">4/11/16</string>
+    <string name="generic_date_3">5/11/16</string>
 </resources>

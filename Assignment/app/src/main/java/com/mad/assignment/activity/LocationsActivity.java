@@ -116,7 +116,7 @@ public class LocationsActivity extends AppCompatActivity {
         builder.setCancelable(true);
 
         builder.setPositiveButton(
-                R.string.locations_activity_popup_yes,
+                getString(R.string.locations_activity_popup_yes),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
@@ -147,7 +147,7 @@ public class LocationsActivity extends AppCompatActivity {
                 });
 
         builder.setNegativeButton(
-                R.string.locations_activity_popup_no,
+                getString(R.string.locations_activity_popup_no),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
