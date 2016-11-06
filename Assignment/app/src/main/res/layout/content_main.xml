@@ -19,31 +19,60 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:text="Welcome! Get Started:"
+        android:text="Welcome!"
         android:textSize="@dimen/main_activity_text_size" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="Get started by saving the places you work:"
+        android:textSize="@dimen/main_activity_guide_text_size" />
 
     <Button
         android:id="@+id/main_activity_set_locations_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:text="Set Locations" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_marginBottom="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="View your hours worked:"
+        android:textSize="@dimen/main_activity_guide_text_size" />
 
     <Button
         android:id="@+id/main_activity_view_current_period_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="View Current Period" />
+        android:text="View Current Period"
+        android:layout_marginBottom="10dp"/>
 
     <Button
         android:id="@+id/main_activity_view_previous_period_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="View Previous Periods" />
+        android:text="View Previous Periods"
+        android:layout_marginBottom="10dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_marginBottom="10dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
         android:text="@string/main_activity_currently_working_at"
         android:textSize="@dimen/main_activity_text_size" />
 
@@ -52,12 +81,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/main_activity_not_at_worksite"
-        android:textSize="@dimen/main_activity_text_size" />
+        android:textSize="@dimen/main_activity_text_size"
+        android:layout_marginBottom="10dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
         android:text="@string/main_activity_hours_worked"
         android:textSize="@dimen/main_activity_text_size" />
 
