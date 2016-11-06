@@ -24,6 +24,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:text="Save All To Previous Period" />
+        android:text="@string/current_period_activity_save_all_btn_label" />
 
 </RelativeLayout>
