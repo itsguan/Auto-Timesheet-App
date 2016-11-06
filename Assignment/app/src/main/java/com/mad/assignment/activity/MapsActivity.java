@@ -9,6 +9,7 @@ import android.location.Location;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -91,8 +92,18 @@ public class MapsActivity extends FragmentActivity implements
                 String searchAddress = searchBar.getText().toString();
                 LatLng latLng = findLatLngFromAddress(searchAddress);
 
-                mMap.addMarker(new MarkerOptions().position(latLng).title("Address"));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                if (latLng != null) {
+
+                    // Add a red marker pointing to the address.
+                    mMap.addMarker(new MarkerOptions().position(latLng).title(searchAddress));
+
+                    // Move the camera onto the marker.
+                    float zoom = 14f;
+                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
+                    mMap.animateCamera(cameraUpdate);
+                } else {
+                    showCantFindAddressToast();
+                }
             }
         });
 
@@ -103,25 +114,41 @@ public class MapsActivity extends FragmentActivity implements
             public void onClick(View v) {
                 String searchAddress = searchBar.getText().toString();
 
+                // Checks if an address was actually entered.
                 if (!searchAddress.equals("")) {
                     LatLng latLng = findLatLngFromAddress(searchAddress);
-                    String latLngMsg = "Lat: " + latLng.latitude + "Lng: " + latLng.longitude;
-                    Log.d(TAG, latLngMsg);
 
-                    // Only create geofence and finish if address was saved properly.
-                    if (saveLocationToSharedPrefs(searchAddress)) {
-                        markerForGeofence(latLng, searchAddress);
-                        finish();
+                    // Checks if the address was actually found.
+                    if (latLng != null) {
+                        String latLngMsg = "Lat: " + latLng.latitude + "Lng: " + latLng.longitude;
+                        Log.d(TAG, latLngMsg);
+
+                        // Only create geofence and finish if address was saved properly.
+                        if (saveLocationToSharedPrefs(searchAddress)) {
+                            markerForGeofence(latLng, searchAddress);
+                            finish();
+                        }
+                    } else {
+                        showCantFindAddressToast();
                     }
                 }
                 else {
-                    Toast.makeText(getApplicationContext(), "Can't save an empty address",
+                    Toast.makeText(getApplicationContext(), R.string.no_address_entered_warning,
                             Toast.LENGTH_LONG).show();
                 }
             }
         });
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        googleApiClient.connect();
+    }
+
+    /**
+     * Create an instance of GoogleApiClient if there is none.
+     */
     private void initialiseGoogleApiClient() {
         if (googleApiClient == null) {
             googleApiClient = new GoogleApiClient.Builder(this)
@@ -130,10 +157,15 @@ public class MapsActivity extends FragmentActivity implements
         }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        googleApiClient.connect();
+    /**
+     * Provide visual feedback in the form of a toast when a search fails.
+     */
+    private void showCantFindAddressToast() {
+        Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.search_timed_out),
+                Toast.LENGTH_LONG);
+        TextView toastView = (TextView) toast.getView().findViewById(android.R.id.message);
+        if(toastView != null) toastView.setGravity(Gravity.CENTER);
+        toast.show();
     }
 
     /**
@@ -151,7 +183,7 @@ public class MapsActivity extends FragmentActivity implements
         Log.d(TAG, "jsonSavedWorkSites = " + jsonSavedWorkSites);
         Type type = new TypeToken<ArrayList<WorkSite>>(){}.getType();
 
-        if (jsonSavedWorkSites != "") {
+        if (!jsonSavedWorkSites.equals("")) {
             workSites = gson.fromJson(jsonSavedWorkSites, type);
         }
 
@@ -177,7 +209,7 @@ public class MapsActivity extends FragmentActivity implements
             // Display a toast if the address was already saved or save as a new address.
             // Prevents concurrent modification exception by using the extra boolean.
             if (existingWorkSiteFound) {
-                Toast.makeText(this, "This address has already been saved.",
+                Toast.makeText(this, R.string.address_already_saved_warning,
                         Toast.LENGTH_LONG).show();
                 return false;
             } else {
@@ -192,7 +224,7 @@ public class MapsActivity extends FragmentActivity implements
         SharedPreferences.Editor editor =
                 getSharedPreferences(Constants.LOCATION_PREF, MODE_PRIVATE).edit();
         editor.putString(Constants.JSON_TAG, jsonWorkSites);
-        editor.commit();
+        editor.apply();
 
         // Provide feedback to the user with a toast message.
         Toast.makeText(getApplicationContext(), location + " is added.", Toast.LENGTH_LONG).show();
@@ -212,9 +244,7 @@ public class MapsActivity extends FragmentActivity implements
                 addressList = geocoder.getFromLocationName(searchAddress, 1);
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(getApplicationContext(),
-                        "Search timed out due to Android servers",
-                        Toast.LENGTH_LONG).show();
+                Log.e(TAG, "Could not find address " + searchAddress);
             }
 
             // Retrieve the first address in the list if there were multiple.

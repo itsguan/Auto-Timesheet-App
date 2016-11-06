@@ -28,4 +28,7 @@
     <string name="generic_date_1">3/11/16</string>
     <string name="generic_date_2">4/11/16</string>
     <string name="generic_date_3">5/11/16</string>
+    <string name="search_timed_out">Search timed out, please check your connection</string>
+    <string name="no_address_entered_warning">Can\'t save an empty address</string>
+    <string name="address_already_saved_warning">This address has already been saved.</string>
 </resources>
