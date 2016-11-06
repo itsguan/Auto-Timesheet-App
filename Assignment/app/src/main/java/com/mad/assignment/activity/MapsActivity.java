@@ -49,7 +49,6 @@ public class MapsActivity extends FragmentActivity implements
         ResultCallback<Status> {
 
     private static final String TAG = MapsActivity.class.getSimpleName();
-    private static final String NOTIFICATION_MSG = "NOTIFICATION MSG";
     private static final int GEOFENCE_REQ_CODE = 0;
     private static final float CAMERA_ZOOM = 15f;
     // The radius of the geofence in meters.
@@ -325,14 +324,7 @@ public class MapsActivity extends FragmentActivity implements
                 this, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    /**
-     * Creates an intent by the notification in GeofenceTransitionService.
-     */
-    public static Intent makeNotificationIntent(Context context, String msg) {
-        Intent intent = new Intent(context, MapsActivity.class);
-        intent.putExtra(NOTIFICATION_MSG, msg);
-        return intent;
-    }
+
 
     /**
      * Adds the completed geofence to the monitoring system.

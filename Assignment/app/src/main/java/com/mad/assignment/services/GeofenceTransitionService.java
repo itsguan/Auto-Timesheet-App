@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
@@ -18,34 +17,40 @@ import android.util.Log;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingEvent;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.mad.assignment.activity.MainActivity;
 import com.mad.assignment.constants.Constants;
 import com.mad.assignment.R;
-import com.mad.assignment.activity.MapsActivity;
+import com.mad.assignment.database.GsonHelper;
 import com.mad.assignment.model.WorkSite;
 
-import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Created by Guan Du 98110291
+ * <p>
+ * This service handles the event when the user enters or leaves a geofence.
+ * Start timer when user enters and record the hours worked and location when user leaves.
+ */
 
 public class GeofenceTransitionService extends IntentService {
 
     private static final String TAG = GeofenceTransitionService.class.getSimpleName();
     private static final int TIMER_INTERVAL = 1000;
 
-    public static final int GEOFENCE_NOTIFICATION_ID = 0;
 
-    /**
-     * Controls the timer to record the hours worked.
-     */
+    // Controls the timer to record the hours worked.
     private Handler mLogTimerHandler = new Handler();
     private static double sHoursWorked = 0;
     private static boolean sRunnableTimerState = false;
 
+    private GsonHelper mGsonHelper;
+
+    /**
+     * Generic constructor that is not explicitly called.
+     */
     public GeofenceTransitionService() {
         super(TAG);
     }
@@ -53,12 +58,14 @@ public class GeofenceTransitionService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
-        // Handling errors
+        // First check if there was any errors.
         if (geofencingEvent.hasError()) {
             String errorMsg = getErrorString(geofencingEvent.getErrorCode());
             Log.e(TAG, errorMsg);
             return;
         }
+
+        mGsonHelper = new GsonHelper(this);
 
         int geoFenceTransition = geofencingEvent.getGeofenceTransition();
 
@@ -97,20 +104,21 @@ public class GeofenceTransitionService extends IntentService {
 
         if (activeWorkSite != null) {
 
+            // Start or stop the timer recording the hours worked.
             handleTimerForHoursWorked(activeWorkSite, activeState);
 
+            // Broadcast location worked so that MainActivity can see updated site in real time.
             BroadcastLocationWorked(activeWorkSite, activeState);
 
-            // Save to shared prefs so that MainActivity can see.
+            // Save to shared prefs so that MainActivity can read the active site offline.
             saveActiveWorkSiteToSharedPrefs(activeWorkSite, activeState);
 
             String geofenceTransitionDetails =
-                    getGeofenceTrasitionDetails(geoFenceTransition, triggeringGeofences);
+                    getGeofenceTransitionDetails(geoFenceTransition, triggeringGeofences);
 
             // Send notification details as a String
             sendNotification(geofenceTransitionDetails);
             Log.d(TAG, "triggered firstGeofence");
-
 
         } else {
             Log.d(TAG, "Cannot find a work site on the firstGeofence");
@@ -124,36 +132,16 @@ public class GeofenceTransitionService extends IntentService {
     private void saveActiveWorkSiteToSharedPrefs(WorkSite activeWorkSite, boolean activeState) {
 
         // Retrieve all active work sites from shared preferences first.
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.LOCATION_PREF, Context.MODE_PRIVATE);
-        ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
-        Gson gson = new Gson();
-        String jsonSavedWorkSites =
-                sharedPreferences.getString(Constants.JSON_TAG, "");
-        Type type = new TypeToken<ArrayList<WorkSite>>() {
-        }.getType();
+        ArrayList<WorkSite> workSites = mGsonHelper.getWorkSitesFromPrefs();
 
-        if (!jsonSavedWorkSites.equals("")) {
-            // Convert the json string back into a list of work site objects.
-            workSites = gson.fromJson(jsonSavedWorkSites, type);
+        // Find the index of the work site with the address of triggered site.
+        int indexOfTriggeredWorkSite = findIndexOfWorkSite(workSites, activeWorkSite);
 
-            // Find the index of the work site with the address of triggered site.
-            int indexOfTriggeredWorkSite = findIndexOfWorkSite(workSites, activeWorkSite);
+        // Set it to currently working within the list.
+        workSites.get(indexOfTriggeredWorkSite).setCurrentlyWorking(activeState);
 
-            // Set it to currently working within the list.
-            workSites.get(indexOfTriggeredWorkSite).setCurrentlyWorking(activeState);
-
-            // Convert the new work site list into a Json string.
-            String jsonWorkSites = gson.toJson(workSites);
-
-            // Overwrite the old Json string with the new updated list.
-            SharedPreferences.Editor editor =
-                    getSharedPreferences(Constants.LOCATION_PREF, MODE_PRIVATE).edit();
-            editor.putString(Constants.JSON_TAG, jsonWorkSites);
-            editor.commit();
-        }
+        mGsonHelper.overwriteWorkSitesInPrefs(workSites);
     }
-
 
     /**
      * Increment hours worked when in a work site. Records this number when user leaves it.
@@ -309,32 +297,23 @@ public class GeofenceTransitionService extends IntentService {
     private WorkSite findWorkSiteWithAddress(String address) {
 
         // Retrieve all active work sites from shared preferences first.
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.LOCATION_PREF, Context.MODE_PRIVATE);
-        ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
-        Gson gson = new Gson();
-        String jsonSavedWorkSites =
-                sharedPreferences.getString(Constants.JSON_TAG, "");
-        Type type = new TypeToken<ArrayList<WorkSite>>() {
-        }.getType();
+        ArrayList<WorkSite> workSites = mGsonHelper.getWorkSitesFromPrefs();
 
-        if (!jsonSavedWorkSites.equals("")) {
-            Log.d(TAG, "Searching for Json work site.");
-            // Convert the json string back into a list of work site objects.
-            workSites = gson.fromJson(jsonSavedWorkSites, type);
-
-            // Look through all work sites and find the one with the same address.
-            for (WorkSite workSite : workSites) {
-                Log.d(TAG, "'" + workSite.getAddress() + "'");
-                if (workSite.getAddress().equals(address)) {
-                    return workSite;
-                }
+        // Look through all work sites and find the one with the same address.
+        for (WorkSite workSite : workSites) {
+            if (workSite.getAddress().equals(address)) {
+                return workSite;
             }
         }
         return null;
     }
 
-    private String getGeofenceTrasitionDetails(int geoFenceTransition, List<Geofence> triggeringGeofences) {
+    /**
+     * Returns a string containing the details of the triggering event.
+     * Details include exiting or entering and the location of the site.
+     */
+    private String getGeofenceTransitionDetails(int geoFenceTransition,
+                                                List<Geofence> triggeringGeofences) {
         // get the ID of each geofence triggered
         ArrayList<String> triggeringGeofencesList = new ArrayList<>();
         for (Geofence geofence : triggeringGeofences) {
@@ -343,50 +322,58 @@ public class GeofenceTransitionService extends IntentService {
 
         String status = null;
         if (geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER)
-            status = "Entering ";
+            status = getString(R.string.notification_entering_prefix);
         else if (geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT)
-            status = "Exiting ";
+            status = getString(R.string.notification_exiting_prefix);
         return status + TextUtils.join(", ", triggeringGeofencesList);
     }
 
+    /**
+     * Sends a notification which has an audio cue.
+     */
     private void sendNotification(String msg) {
         Log.i(TAG, "sendNotification: " + msg);
 
         // Intent to start the main Activity
-        Intent notificationIntent = MapsActivity.makeNotificationIntent(
-                getApplicationContext(), msg
-        );
+        Intent notificationIntent =
+                MainActivity.makeNotificationIntent(getApplicationContext(), msg);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(MapsActivity.class);
+        stackBuilder.addParentStack(MainActivity.class);
         stackBuilder.addNextIntent(notificationIntent);
-        PendingIntent notificationPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-
+        PendingIntent notificationPendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Creating and sending Notification
-        NotificationManager notificatioMng =
+        NotificationManager notificationMng =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificatioMng.notify(
-                GEOFENCE_NOTIFICATION_ID,
+        notificationMng.notify(
+                Constants.GEOFENCE_NOTIFICATION_ID,
                 createNotification(msg, notificationPendingIntent));
 
     }
 
-    // Create notification
+    /**
+     * Create the notification by giving it specific properties.
+     */
     private Notification createNotification(String msg, PendingIntent notificationPendingIntent) {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
         notificationBuilder
                 .setSmallIcon(R.drawable.ic_action_location)
                 .setColor(Color.RED)
                 .setContentTitle(msg)
-                .setContentText("Geofence Notification!")
+                .setContentText(getString(R.string.notification_click_instruction))
                 .setContentIntent(notificationPendingIntent)
-                .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND)
+                .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE |
+                        Notification.DEFAULT_SOUND)
                 .setAutoCancel(true);
         return notificationBuilder.build();
     }
 
-
+    /**
+     * Returns various error strings if there was an error during the trigger.
+     * Not UI related, used for logcat.
+     */
     private static String getErrorString(int errorCode) {
         switch (errorCode) {
             case GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE:

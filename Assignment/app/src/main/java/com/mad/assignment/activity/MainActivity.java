@@ -19,13 +19,18 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.mad.assignment.constants.Constants;
+import com.mad.assignment.database.GsonHelper;
+import com.mad.assignment.model.WorkSite;
 import com.mad.assignment.services.LocationTrackerService;
 import com.mad.assignment.R;
 
+import java.util.ArrayList;
+
 /**
  * Created by Guan Du 98110291
- *
+ * <p>
  * This class handles the MainActivity, which is also the launch activity.
  * It checks user permissions which can start the essential LocationTrackerService.
  * Also sets up the buttons that starts the other activities.
@@ -39,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView mHoursWorked;
     private BroadcastReceiver mHoursWorkedReceiver;
     private BroadcastReceiver mActiveWorkAddressReceiver;
+    private GsonHelper mGsonHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,14 +53,19 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mGsonHelper = new GsonHelper(this);
+
         setupButtons();
         setupTextViews();
         firstTimeCheckPermissions();
+
+        Log.d(TAG, "onCreate()");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        setCurrentlyWorkingToActiveSite();
 
         // Register the two broadcast receivers.
         LocalBroadcastManager.getInstance(this).registerReceiver(mHoursWorkedReceiver,
@@ -122,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
                 // Updates the hours worked TextView when the user is within a work site.
                 double hoursWorked = intent.getDoubleExtra(Constants.EXTRA_HOURS_WORKED, 0);
                 mHoursWorked.setText(Double.toString(hoursWorked));
-                Log.d(TAG, "" + hoursWorked);
+                //Log.d(TAG, "" + hoursWorked);
             }
         };
 
@@ -137,6 +148,8 @@ public class MainActivity extends AppCompatActivity {
                 if (activeWorkAddress.equals(getString(R.string.main_activity_not_at_worksite))) {
                     mHoursWorked.setText(getString(R.string.hours_worked_placeholder));
                 }
+
+                Log.d(TAG, activeWorkAddress);
             }
         };
     }
@@ -184,4 +197,35 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    /**
+     * Creates an intent by the notification in GeofenceTransitionService.
+     */
+    public static Intent makeNotificationIntent(Context context, String msg) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra(Constants.NOTIFICATION_MSG, msg);
+        return intent;
+    }
+
+    /**
+     * Sets the TextView to show a work site that the user is in.
+     */
+    private void setCurrentlyWorkingToActiveSite() {
+        ArrayList<WorkSite> workSites = mGsonHelper.getWorkSitesFromPrefs();
+        boolean activeFound = false;
+
+        // Look through all work sites and find the one that is currently active.
+        for (WorkSite workSite : workSites) {
+            if (workSite.isCurrentlyWorking()) {
+                mActiveWorkSite.setText(workSite.getAddress());
+                activeFound = true;
+            }
+        }
+
+        // If no active sites were found, set text to not at a worksite.
+        if (!activeFound) {
+            mActiveWorkSite.setText(R.string.main_activity_not_at_worksite);
+        }
+    }
 }
+

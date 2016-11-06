@@ -32,4 +32,7 @@
     <string name="no_address_entered_warning">Please enter an address</string>
     <string name="address_already_saved_warning">This address has already been saved.</string>
     <string name="current_period_activity_save_all_btn_label">Save All To Previous Period</string>
+    <string name="notification_entering_prefix">"Started work at "</string>
+    <string name="notification_exiting_prefix">"Stopped work at "</string>
+    <string name="notification_click_instruction">Click to view hours worked here today!</string>
 </resources>
