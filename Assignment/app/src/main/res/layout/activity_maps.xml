@@ -8,30 +8,40 @@
         android:layout_height="50dp"
         android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/map_search_address"
-            android:layout_marginLeft="3dp"
-            android:layout_weight="0"/>
-
         <EditText
             android:id="@+id/maps_activity_search_et"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="5"/>
+            android:layout_weight="5"
+            android:hint="@string/map_search_address"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginBottom="5dp">
 
         <Button
             android:id="@+id/maps_activity_search_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/maps_activity_search"/>
+            android:minHeight="0dp"
+            android:text="@string/maps_activity_search"
+            android:layout_weight="1"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="5dp"/>
 
         <Button
             android:id="@+id/maps_activity_save_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/maps_activity_save"/>
+            android:minHeight="0dp"
+            android:text="@string/maps_activity_save"
+            android:layout_weight="1"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="10dp"/>
 
     </LinearLayout>
 

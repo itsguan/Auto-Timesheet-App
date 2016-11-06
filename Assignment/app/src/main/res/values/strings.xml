@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Work Logger</string>
     <string name="title_activity_maps">Map</string>
-    <string name="map_search_address">Address:</string>
+    <string name="map_search_address">Enter your work site address:</string>
     <string name="maps_activity_search">Search</string>
     <string name="locations_activity_label">Active Work Locations:</string>
     <string name="maps_activity_save">Save</string>
@@ -29,6 +29,6 @@
     <string name="generic_date_2">04/11/16</string>
     <string name="generic_date_3">05/11/16</string>
     <string name="search_timed_out">Search timed out, please check your connection</string>
-    <string name="no_address_entered_warning">Can\'t save an empty address</string>
+    <string name="no_address_entered_warning">Please enter an address</string>
     <string name="address_already_saved_warning">This address has already been saved.</string>
 </resources>
