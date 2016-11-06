@@ -1,15 +1,12 @@
 package com.mad.assignment.activity;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,19 +15,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.mad.assignment.constants.Constants;
 import com.mad.assignment.R;
+import com.mad.assignment.database.GsonHelper;
 import com.mad.assignment.model.WorkSite;
 
 import java.util.ArrayList;
-import java.lang.reflect.Type;
 
 public class LocationsActivity extends AppCompatActivity {
 
     private ListView mListView;
-    private ArrayAdapter<String> mAdapter;
+    private GsonHelper mGsonHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +42,8 @@ public class LocationsActivity extends AppCompatActivity {
             }
         });
 
+        mGsonHelper = new GsonHelper(this);
         mListView = (ListView) findViewById(R.id.locations_activity_list_view);
-
-        refreshList();
 
         // Clicking a name in the ListView will remove that entry from the shared prefs.
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -58,7 +51,7 @@ public class LocationsActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 // Retrieve the work site to be deleted from the shared prefs.
-                ArrayList<WorkSite> activeWorkSites = getWorkSitesFromPrefs();
+                ArrayList<WorkSite> activeWorkSites = mGsonHelper.getWorkSitesFromPrefs();
                 WorkSite toBeDeletedWorkSite = activeWorkSites.get(position);
 
                 // Create a pop-up asking for confirmation.
@@ -90,7 +83,6 @@ public class LocationsActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         refreshList();
-        Log.d("tag", "resumed");
     }
 
     /**
@@ -98,10 +90,10 @@ public class LocationsActivity extends AppCompatActivity {
      */
     private void refreshList() {
         ArrayList<String> addresses = getAddressesFromPrefs();
-        mAdapter = new ArrayAdapter<String>(this,
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, addresses);
 
-        mListView.setAdapter(mAdapter);
+        mListView.setAdapter(adapter);
     }
 
     /**
@@ -123,15 +115,8 @@ public class LocationsActivity extends AppCompatActivity {
                         // Remove the entry from the given ArrayList.
                         activeWorkSites.remove(position);
 
-                        // Retrieve Json WorkSite list and open connection to shared prefs.
-                        Gson gson = new Gson();
-                        String jsonWorkSites = gson.toJson(activeWorkSites);
-                        SharedPreferences.Editor editor =
-                                getSharedPreferences(Constants.LOCATION_PREF, MODE_PRIVATE).edit();
-
-                        // Overwrite the existing Json WorkSite list with the updated list.
-                        editor.putString(Constants.JSON_TAG, jsonWorkSites);
-                        editor.apply();
+                        // Use the helper class to overwrite the old Json list.
+                        mGsonHelper.overwriteWorkSitesInPrefs(activeWorkSites);
 
                         // Update the list view by refreshing the adapter.
                         refreshList();
@@ -159,34 +144,12 @@ public class LocationsActivity extends AppCompatActivity {
     }
 
     /**
-     * Returns an ArrayList of WorkSite objects stored in the shared prefs.
-     */
-    private ArrayList<WorkSite> getWorkSitesFromPrefs() {
-
-        // Retrieve the Json String containing a list of WorkSite objects.
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(Constants.LOCATION_PREF, Context.MODE_PRIVATE);
-        String jsonWorkSites = sharedPreferences.getString(Constants.JSON_TAG, "");
-        Log.d("JSONTAG", "jsonWorkSites = " + jsonWorkSites);
-        Gson gson = new Gson();
-        Type type = new TypeToken<ArrayList<WorkSite>>() {}.getType();
-
-        // Only convert back to a list if the Json string is not empty.
-        if (jsonWorkSites != null && jsonWorkSites != "") {
-            return gson.fromJson(jsonWorkSites, type);
-        }
-
-        // Simple return a new ArrayList if there is nothing in the Json String.
-        return new ArrayList<>();
-    }
-
-    /**
      * Returns a list of addresses of the work sites stored in the shared prefs.
      */
     private ArrayList<String> getAddressesFromPrefs() {
 
-        // Retrieve the entire list of active work sites first from the shared prefs.
-        ArrayList<WorkSite> activeWorkSites = getWorkSitesFromPrefs();
+        // Retrieve the entire list of active work sites first using the helper class.
+        ArrayList<WorkSite> activeWorkSites = mGsonHelper.getWorkSitesFromPrefs();
         ArrayList<String> activeWorkSiteAddresses = new ArrayList<>();
 
         // Retrieve the addresses and store them in a list of Strings.
@@ -201,14 +164,7 @@ public class LocationsActivity extends AppCompatActivity {
      * Clears the Json list of work sites stored in the SharedPrefs
      */
     private void clearAllLocations() {
-        Gson gson = new Gson();
-        ArrayList<WorkSite> workSites = new ArrayList<WorkSite>();
-        String jsonWorkSites = gson.toJson(workSites);
-        SharedPreferences.Editor editor =
-                getSharedPreferences(Constants.LOCATION_PREF, MODE_PRIVATE).edit();
-
-        editor.putString(Constants.JSON_TAG, jsonWorkSites);
-        editor.apply();
+        mGsonHelper.clearAllLocations();
         refreshList();
     }
 }
