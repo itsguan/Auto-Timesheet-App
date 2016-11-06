@@ -25,9 +25,9 @@
     <string name="generic_address_1">15 Broadway Ultimo</string>
     <string name="generic_address_2">1 Harbour St</string>
     <string name="generic_address_3">110 Burwood Rd</string>
-    <string name="generic_date_1">3/11/16</string>
-    <string name="generic_date_2">4/11/16</string>
-    <string name="generic_date_3">5/11/16</string>
+    <string name="generic_date_1">03/11/16</string>
+    <string name="generic_date_2">04/11/16</string>
+    <string name="generic_date_3">05/11/16</string>
     <string name="search_timed_out">Search timed out, please check your connection</string>
     <string name="no_address_entered_warning">Can\'t save an empty address</string>
     <string name="address_already_saved_warning">This address has already been saved.</string>
