@@ -16,4 +16,10 @@
     <string name="locations_activity_popup_no">No</string>
     <string name="locations_activity_toast_feedback_suffix">" deleted."</string>
     <string name="main_activity_perm_not_granted_effects">Work Site Location detection will not work</string>
+    <string name="main_activity_welcome">Welcome!</string>
+    <string name="main_activity_get_started_instruction">Get started by saving the places you work:</string>
+    <string name="main_activity_set_locations_btn_label">Set Locations</string>
+    <string name="main_activity_guide_view_hours">View your hours worked:</string>
+    <string name="main_activity_view_current_period_btn_label">View Current Period</string>
+    <string name="main_activity_view_previous_periods_btn_label">View Previous Periods</string>
 </resources>

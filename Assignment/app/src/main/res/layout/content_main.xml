@@ -19,14 +19,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:text="Welcome!"
+        android:text="@string/main_activity_welcome"
         android:textSize="@dimen/main_activity_text_size" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:text="Get started by saving the places you work:"
+        android:text="@string/main_activity_get_started_instruction"
         android:textSize="@dimen/main_activity_guide_text_size" />
 
     <Button
@@ -34,40 +34,40 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:text="Set Locations" />
+        android:text="@string/main_activity_set_locations_btn_label" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@android:color/darker_gray"
-        android:layout_marginBottom="10dp"/>
+        android:layout_marginBottom="10dp"
+        android:background="@android:color/darker_gray" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:text="View your hours worked:"
+        android:text="@string/main_activity_guide_view_hours"
         android:textSize="@dimen/main_activity_guide_text_size" />
 
     <Button
         android:id="@+id/main_activity_view_current_period_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="View Current Period"
-        android:layout_marginBottom="10dp"/>
+        android:layout_marginBottom="10dp"
+        android:text="@string/main_activity_view_current_period_btn_label" />
 
     <Button
         android:id="@+id/main_activity_view_previous_period_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="View Previous Periods"
-        android:layout_marginBottom="10dp"/>
+        android:layout_marginBottom="10dp"
+        android:text="@string/main_activity_view_previous_periods_btn_label" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@android:color/darker_gray"
-        android:layout_marginBottom="10dp"/>
+        android:layout_marginBottom="10dp"
+        android:background="@android:color/darker_gray" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -80,9 +80,9 @@
         android:id="@+id/main_activity_worksite_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:text="@string/main_activity_not_at_worksite"
-        android:textSize="@dimen/main_activity_text_size"
-        android:layout_marginBottom="10dp"/>
+        android:textSize="@dimen/main_activity_text_size" />
 
     <TextView
         android:layout_width="wrap_content"

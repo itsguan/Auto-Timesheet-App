@@ -34,6 +34,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = MainActivity.class.getName();
 
     private TextView mActiveWorkSite;
     private TextView mHoursWorked;
@@ -46,15 +47,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         setupButtons();
         setupTextViews();
@@ -128,20 +120,23 @@ public class MainActivity extends AppCompatActivity {
         mHoursWorkedReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                // Updates the hours worked TextView when the user is within a work site.
                 double hoursWorked = intent.getDoubleExtra(Constants.EXTRA_HOURS_WORKED, 0);
                 mHoursWorked.setText(Double.toString(hoursWorked));
-                Log.d("MAIN", ""+hoursWorked);
+                Log.d(TAG, "" + hoursWorked);
             }
         };
 
         mActiveWorkAddressReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                // Displays the location of the work site when the user is in one.
                 String activeWorkAddress = intent.getStringExtra(Constants.EXTRA_ACTIVE_ADDRESS);
                 mActiveWorkSite.setText(activeWorkAddress);
 
+                // Reset hours worked back to 0 if not in a work site.
                 if (activeWorkAddress.equals(getString(R.string.main_activity_not_at_worksite))) {
-                    mHoursWorked.setText("0");
+                    mHoursWorked.setText(R.string.hours_worked_placeholder);
                 }
             }
         };
@@ -166,7 +161,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Verify user's response of the permission requested
+    /**
+     * Callback method after user allows/disable location tracker service.
+     * If allowed, start location tracker service.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -175,11 +173,11 @@ public class MainActivity extends AppCompatActivity {
             case Constants.REQ_PERMISSION: {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted
+                    // Start background location tracker service if allowed.
                     startService(new Intent(this, LocationTrackerService.class));
 
                 } else {
-                    // Permission denied
+                    // Create visual feedback to tell user that app will not work.
                     Toast.makeText(this, R.string.main_activity_perm_not_granted_effects,
                             Toast.LENGTH_SHORT).show();
                 }
