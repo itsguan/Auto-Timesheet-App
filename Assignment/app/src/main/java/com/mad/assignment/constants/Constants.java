@@ -1,7 +1,7 @@
 package com.mad.assignment.constants;
 
 /**
- * Created by Guan on 26/10/2016.
+ * Created by Guan Du 98110291
  *
  * This class contains constants that are used by multiple classes.
  * Constants that are only used by a single class normally stay in their own class.

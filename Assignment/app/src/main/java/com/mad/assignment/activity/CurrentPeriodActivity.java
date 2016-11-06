@@ -17,6 +17,14 @@ import com.mad.assignment.model.WorkSite;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Created by Guan Du 98110291
+ *
+ * This class handles the current period activity by managing the RecyclerView and its attached
+ * view adapter.
+ * The Adapter uses SugarORM to retrieve and manage the database of work logs.
+ */
+
 public class CurrentPeriodActivity extends AppCompatActivity {
 
     private static final String TAG = CurrentPeriodActivity.class.getName();

@@ -13,7 +13,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 /**
- * Created by Guan Du
+ * Created by Guan Du 98110291
  *
  * This class contains convenient methods related to Gson.
  * It includes methods that can return a list of WorkSites or overwrite this list.

@@ -13,16 +13,19 @@ import com.mad.assignment.model.WorkSite;
 import java.util.List;
 
 /**
- * Created by Guan on 26/10/2016.
+ * Created by Guan Du 98110291.
+ *
+ * This class is a custom adapter used by a RecyclerView.
+ * This adapter will appropriately list the necessary details of a work site object.
  */
 
 public class WorkLogAdapter extends RecyclerView.Adapter<WorkLogAdapter.ViewHolder> {
 
-    private Context mContext;
-    private List<WorkSite> mWorkSiteList;
-
     private static final String LATE = "Late";
     private static final int SINGLE_SLEEP_TIME = 2000;
+
+    private Context mContext;
+    private List<WorkSite> mWorkSiteList;
 
     /**
      * Represents a single row that will display a work site object's fields.
@@ -43,7 +46,6 @@ public class WorkLogAdapter extends RecyclerView.Adapter<WorkLogAdapter.ViewHold
         }
     }
 
-
     /**
      * Sets the fields of the class with the arguments supplied by the caller.
      */
@@ -60,7 +62,6 @@ public class WorkLogAdapter extends RecyclerView.Adapter<WorkLogAdapter.ViewHold
         return mWorkSiteList != null ? mWorkSiteList.get(position) : null;
     }
 
-
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
@@ -72,6 +73,7 @@ public class WorkLogAdapter extends RecyclerView.Adapter<WorkLogAdapter.ViewHold
     public void onBindViewHolder(ViewHolder holder, int position) {
         WorkSite workSite = mWorkSiteList.get(position);
 
+        // Allocate the TextViews to show specific fields of a WorkSite.
         holder.date.setText(workSite.getDateWorked());
         holder.location.setText(workSite.getAddress());
         holder.hours.setText(Double.toString(workSite.getHoursWorked()));

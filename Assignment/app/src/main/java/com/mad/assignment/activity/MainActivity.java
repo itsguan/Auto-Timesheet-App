@@ -23,6 +23,14 @@ import com.mad.assignment.constants.Constants;
 import com.mad.assignment.services.LocationTrackerService;
 import com.mad.assignment.R;
 
+/**
+ * Created by Guan Du 98110291
+ *
+ * This class handles the MainActivity, which is also the launch activity.
+ * It checks user permissions which can start the essential LocationTrackerService.
+ * Also sets up the buttons that starts the other activities.
+ */
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getName();

@@ -21,6 +21,13 @@ import com.mad.assignment.model.WorkSite;
 
 import java.util.ArrayList;
 
+/**
+ * Created by Guan Du 98110291
+ *
+ * This class handles the LocationsActivity by managing its ListView and updating its adapter
+ * with the appropriate List of WorkSites from the Shared Preferences.
+ */
+
 public class LocationsActivity extends AppCompatActivity {
 
     private ListView mListView;

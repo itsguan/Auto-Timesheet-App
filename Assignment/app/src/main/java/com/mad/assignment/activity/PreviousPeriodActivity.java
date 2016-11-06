@@ -12,6 +12,14 @@ import com.mad.assignment.model.WorkSite;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Created by Guan Du 98110291
+ *
+ * This class handles the previous period activity by managing the RecyclerView and its attached
+ * view adapter.
+ * The Adapter uses SugarORM to retrieve and manage the database of work logs.
+ */
+
 public class PreviousPeriodActivity extends AppCompatActivity {
 
     private static final String TAG = PreviousPeriodActivity.class.getName();

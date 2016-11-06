@@ -4,20 +4,23 @@ import com.google.android.gms.maps.model.LatLng;
 import com.orm.SugarRecord;
 
 /**
- * Created by Guan on 12/10/2016.
+ * Created by Guan Du 98110291
+ *
+ * This is a POJO that contains the fields, getters and setters for a Work Site.
+ * Used by Gson and SugarORM APIs.
  */
 
 public class WorkSite extends SugarRecord {
 
     private static final double MAX_HOURS_WORKED = 24;
 
-    private String address;
-    private String dateWorked;
-    private double latitude;
-    private double longitude;
-    private double hoursWorked;
-    private boolean currentlyWorking = false;
-    private boolean currentPeriod = true;
+    private String mAddress;
+    private String mDateWorked;
+    private double mLatitude;
+    private double mLongitude;
+    private double mHoursWorked;
+    private boolean mCurrentlyWorking = false;
+    private boolean mCurrentPeriod = true;
 
     /**
      * Constructor required by SugarORM
@@ -26,65 +29,67 @@ public class WorkSite extends SugarRecord {
     }
 
     /**
-     * Creates a WorkSite using only an address and a LatLng. Used for geofences.
+     * Creates a WorkSite using only an mAddress and a LatLng. Used for geofences.
      */
     public WorkSite(String address, LatLng latLng) {
-        this.address = address;
-        latitude = latLng.latitude;
-        longitude = latLng.longitude;
+        this.mAddress = address;
+        mLatitude = latLng.latitude;
+        mLongitude = latLng.longitude;
     }
 
     /**
      * Creates a WorkSite that contains date and hours worked. Used for databases.
      */
     public WorkSite (String address, String dateWorked, double hoursWorked) {
-        this.address = address;
-        this.dateWorked = dateWorked;
-        this.hoursWorked = hoursWorked;
+        this.mAddress = address;
+        this.mDateWorked = dateWorked;
+        this.mHoursWorked = hoursWorked;
     }
 
     public String getAddress() {
-        return address;
+        return mAddress;
     }
 
     public void setCurrentlyWorking(boolean currentlyWorking) {
-        this.currentlyWorking = currentlyWorking;
+        this.mCurrentlyWorking = currentlyWorking;
     }
 
     public boolean isCurrentlyWorking() {
-        return currentlyWorking;
+        return mCurrentlyWorking;
     }
 
     public void setHoursWorked(double hoursWorked) {
-        this.hoursWorked = hoursWorked;
+        this.mHoursWorked = hoursWorked;
     }
 
+    /**
+     * Increases the hours worked. Cannot pass MAX_HOURS.
+     */
     public void incrementHoursWorked(double increment) {
-        if (hoursWorked + increment < MAX_HOURS_WORKED) {
-            hoursWorked += increment;
+        if (mHoursWorked + increment < MAX_HOURS_WORKED) {
+            mHoursWorked += increment;
         } else {
-            hoursWorked = MAX_HOURS_WORKED;
+            mHoursWorked = MAX_HOURS_WORKED;
         }
     }
 
     public String getDateWorked() {
-        return dateWorked;
+        return mDateWorked;
     }
 
     public void setDateWorked(String dateWorked) {
-        this.dateWorked = dateWorked;
+        this.mDateWorked = dateWorked;
     }
 
     public double getHoursWorked() {
-        return hoursWorked;
+        return mHoursWorked;
     }
 
     public boolean isCurrentPeriod() {
-        return currentPeriod;
+        return mCurrentPeriod;
     }
 
     public void setCurrentPeriod(boolean currentPeriod) {
-
-        this.currentPeriod = currentPeriod;
+        this.mCurrentPeriod = currentPeriod;
     }
 }
