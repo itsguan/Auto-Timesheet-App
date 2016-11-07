@@ -10,10 +10,54 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.mad.assignment.activity.PreviousPeriodActivity">
 
+    <LinearLayout
+        android:id="@+id/previous_period_activity_top_linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_margin="10dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/work_log_recycler_view_date_header"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="6"
+            android:gravity="left"
+            android:paddingLeft="26dp"
+            android:text="@string/work_log_recycler_view_address_header"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:paddingRight="10dp"
+            android:text="@string/work_log_recycler_view_hours_header"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/previous_period_activity_header_separator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/previous_period_activity_top_linear_layout"
+        android:layout_marginBottom="10dp"
+        android:background="@android:color/darker_gray" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/previous_period_activity_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true" />
+        android:layout_below="@id/previous_period_activity_header_separator"/>
 
 </RelativeLayout>

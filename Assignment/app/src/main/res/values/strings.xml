@@ -38,4 +38,10 @@
     <string name="locations_activity_explanation">These are the addresses that you work at.</string>
     <string name="locations_activity_removal_instruction">Click an address to remove it.</string>
     <string name="locations_activity_new_address_instruction">Click the circular button to add a new address.</string>
+    <string name="log_row_placeholder_date">26/10/16</string>
+    <string name="log_row_placeholder_address">15 Broadway Ultimo</string>
+    <string name="log_row_placeholder_hours">6</string>
+    <string name="work_log_recycler_view_date_header">Date:</string>
+    <string name="work_log_recycler_view_address_header">Address:</string>
+    <string name="work_log_recycler_view_hours_header">Hours:</string>
 </resources>
