@@ -38,7 +38,8 @@ import java.util.List;
 public class GeofenceTransitionService extends IntentService {
 
     private static final String TAG = GeofenceTransitionService.class.getSimpleName();
-    private static final int TIMER_INTERVAL = 1000;
+    private static final int TIMER_INTERVAL = 2000;
+    private static final double TIMER_INCREMENT = 0.5;
 
 
     // Controls the timer to record the hours worked.
@@ -156,7 +157,7 @@ public class GeofenceTransitionService extends IntentService {
             @Override
             public void run() {
                 if (sRunnableTimerState) {
-                    sHoursWorked++;
+                    sHoursWorked += TIMER_INCREMENT;
                     Log.d(TAG, "Hours worked: " + Double.toString(sHoursWorked));
                     //Log.d(TAG, new SimpleDateFormat("dd/MM/yy").format(new Date()));
                     BroadcastHoursWorked(sHoursWorked);
