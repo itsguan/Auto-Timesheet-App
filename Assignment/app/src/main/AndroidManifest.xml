@@ -42,25 +42,30 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".activity.MapsActivity"
             android:label="@string/title_activity_maps" />
+
         <activity
             android:name=".activity.LocationsActivity"
             android:label="@string/locations_activity_label"
             android:theme="@style/AppTheme.NoActionBar" />
 
+        <activity
+            android:name=".activity.CurrentPeriodActivity"
+            android:label="@string/current_period_activity_label" />
+
+        <activity
+            android:name=".activity.PreviousPeriodActivity"
+            android:label="@string/previous_period_activity_title" />
+
         <service android:name=".services.GeofenceTransitionService" />
         <service android:name=".services.LocationTrackerService" />
 
-        <activity
-            android:name=".activity.CurrentPeriodActivity"
-            android:label="Current Work Period"></activity>
-        <activity android:name=".activity.PreviousPeriodActivity"></activity>
     </application>
 
 </manifest>

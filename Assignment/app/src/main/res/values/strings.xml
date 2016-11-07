@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Work Logger</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_maps">Find an address</string>
     <string name="map_search_address">Enter your work site address:</string>
     <string name="maps_activity_search">Search</string>
     <string name="locations_activity_label">Active Work Locations:</string>
@@ -44,4 +44,6 @@
     <string name="work_log_recycler_view_date_header">Date:</string>
     <string name="work_log_recycler_view_address_header">Address:</string>
     <string name="work_log_recycler_view_hours_header">Hours:</string>
+    <string name="current_period_activity_label">Current Work Period</string>
+    <string name="previous_period_activity_title">Previous Work Logs</string>
 </resources>
