@@ -10,9 +10,8 @@
 
         <EditText
             android:id="@+id/maps_activity_search_et"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="5"
             android:hint="@string/map_search_address"/>
 
     </LinearLayout>
